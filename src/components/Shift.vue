@@ -80,7 +80,7 @@ export default {
   title: "打卡排班系統",
   name: "Shift",
   components: {
-    modal
+    modal,
   },
   data() {
     return {
@@ -89,7 +89,7 @@ export default {
       date: new Date().Format("yyyy-MM-dd"),
       mode: {
         prd: "34.80.179.232",
-        dev: "localhost"
+        dev: "localhost",
       },
       showModal: false,
       //員工列
@@ -102,7 +102,7 @@ export default {
       employeeData: {
         employee_id: 0,
         name: "",
-        shift_name: ""
+        shift_name: "",
       },
       //員工打卡紀錄
       employeeRecord: {
@@ -111,14 +111,14 @@ export default {
         on_2nd: "",
         off_2nd: "",
         on_3rd: "",
-        off_3rd: ""
+        off_3rd: "",
       },
       //欲提交資料的格式
       postData: {
         employee_id: null,
         datetime: null,
         clinic_id: 33,
-        type: null
+        type: null,
       },
       //拍照參數設定
       webcam: {
@@ -131,10 +131,10 @@ export default {
         flip_horiz: true,
         mandatory: {
           facingMode: {
-            exact: "environment"
-          }
-        }
-      }
+            exact: "environment",
+          },
+        },
+      },
     };
   },
   created() {
@@ -161,7 +161,7 @@ export default {
     },
     timer() {
       //時間更新
-      const update = function() {
+      const update = function () {
         document.getElementById("datetime").innerHTML = new Date().Format(
           "yyyy-MM-dd hh:mm:ss"
         );
@@ -172,14 +172,14 @@ export default {
       //獲取該診所所有員工當日打卡紀錄
       axios
         .get(
-          `http://${this.mode.prd}/api_v1.1/shift/record?id=${btoa(
+          `http://${this.mode.dev}/api_v1.1/shift/record?id=${btoa(
             this.clinicId + "." + this.date
           )}`
         )
-        .then(res => {
+        .then((res) => {
           this.record = res.data.data ?? [];
         })
-        .catch(error => {
+        .catch((error) => {
           alert(error);
         });
     },
@@ -187,14 +187,14 @@ export default {
       //獲取該診所名稱
       axios
         .get(
-          `http://${this.mode.prd}/api_v1.1/shift/clinic/name?id=${btoa(
+          `http://${this.mode.dev}/api_v1.1/shift/clinic/name?id=${btoa(
             this.clinicId + "." + this.date
           )}`
         )
-        .then(res => {
+        .then((res) => {
           this.clinicName = res.data.data.name;
         })
-        .catch(error => {
+        .catch((error) => {
           alert(error);
         });
     },
@@ -202,56 +202,72 @@ export default {
       //獲取員工列表
       axios
         .get(
-          `http://${this.mode.prd}/api_v1.1/shift/employee/list?id=${btoa(
+          `http://${this.mode.dev}/api_v1.1/shift/employee/list?id=${btoa(
             this.clinicId + "." + this.date
           )}`
         )
-        .then(res => {
+        .then((res) => {
           //排序
-          this.employee = this.sortEmployeeList(res.data.data ?? []);
+          const data = res.data.data;
+          if (data.length !== 0) {
+            const _shift = this.shift;
+            const value = data.sort((data) =>
+              _shift.find(
+                (data2) =>
+                  data2.employee_id == data.employee_id &&
+                  data2.data[0].shift.shift_id == 0
+              )
+                ? 1
+                : -1
+            );
+            this.employee = value;
+          } else {
+            this.employee = [];
+          }
         })
-        .catch(error => {
+        .catch((error) => {
           alert(error);
         });
     },
-    getShiftTable() {
+    async getShiftTable() {
       //獲取排班表
-      axios
-        .get(
-          `http://${this.mode.prd}/api_v1.1/shift/table/list?id=${btoa(
-            this.clinicId + "." + this.date
-          )}`
-        )
-        .then(res => {
-          this.shift = res.data.data ?? [];
-        })
-        .catch(error => {
-          alert(error);
+      const res = await axios.get(
+        `http://${this.mode.dev}/api_v1.1/shift/table/list?id=${btoa(
+          this.clinicId + "." + this.date
+        )}`
+      );
+      if (res.data.data) {
+        let data = res.data.data;
+        data.forEach((item) => {
+          // 刪除多餘的排班，只求當天
+          let index = item.data.length - 1;
+          while (index >= 0) {
+            if (item.data[index].date !== this.date) {
+              item.data.splice(index, 1);
+            }
+            index -= 1;
+          }
         });
-    },
-    sortEmployeeList(employee) {
-      // 長度不為0
-      if (employee.length !== 0) {
-        const _shift = this.shift;
-        const value = employee.sort(data =>
-          _shift.find(data2 => data2.employee_id == data.employee_id) ? -1 : 1
-        );
-        return value;
+        this.shift = data;
+      } else {
+        this.shift = [];
       }
-      return [];
     },
     getEmployeeData(id) {
       //員工資料
-      this.employeeData = this.employee.find(data => data.employee_id == id);
+      this.employeeData = this.employee.find((data) => data.employee_id == id);
       //員工排班
-      const _shitf = this.shift.find(data => data.employee_id == id);
-      this.employeeData.shift_name = _shitf ? _shitf.shift_name : "無排班";
+      const _shift = this.shift.find((data) => data.employee_id == id);
+      console.log(_shift);
+      this.employeeData.shift_name = _shift
+        ? _shift.data[0].shift.shift_name
+        : "無排班";
     },
     getEmployeeRecord(id) {
       //獲取紀錄
-      const data = this.record.filter(data => data.employee_id == id);
+      const data = this.record.filter((data) => data.employee_id == id);
       for (let prop in this.employeeRecord) {
-        let _d = data.find(d => d.type == prop);
+        let _d = data.find((d) => d.type == prop);
         this.employeeRecord[prop] = _d ?? "";
         //將 年月日 去除
         if (_d) {
@@ -281,7 +297,7 @@ export default {
       ImageHelper.resizeAndRotateImage(
         this.DataURIToBlob(document.getElementById("img").value),
         300,
-        function(resizeImageObj) {
+        function (resizeImageObj) {
           document.getElementById("img").value = resizeImageObj;
         }
       );
@@ -291,18 +307,18 @@ export default {
       );
       form.append("data", JSON.stringify(this.postData));
       let config = {
-        header: { "Content-Type": "multipart/form-data" }
+        header: { "Content-Type": "multipart/form-data" },
       };
       //插入遠端server
       axios
         .post(
-          `http://${this.mode.prd}/api_v1.1/shift/record/add?id=${btoa(
+          `http://${this.mode.dev}/api_v1.1/shift/record/add?id=${btoa(
             this.clinicId + "." + this.date
           )}`,
           form,
           config
         )
-        .then(res => {
+        .then((res) => {
           if (res.data.code === 200) {
             alert("打卡成功!");
             this.getShiftRecord();
@@ -312,14 +328,14 @@ export default {
             alert("打卡失敗!");
           }
         })
-        .catch(error => {
+        .catch((error) => {
           alert(error);
         });
     },
     takeSnapshot(employee_id, type) {
       //拍照並且詢問是否要打卡，若無則不執行saveRemote
       const time = new Date().Format("yyyy-MM-dd hh:mm:ss");
-      Webcam.snap(function(dataUri) {
+      Webcam.snap(function (dataUri) {
         document.getElementById("img").value = dataUri;
       });
       if (confirm("是否打卡?")) {
@@ -329,18 +345,18 @@ export default {
         this.postData.type = type;
         this.saveRemote();
       }
-    }
+    },
   },
   watch: {
     showModal: {
       //控制modal
-      handler: function() {
+      handler: function () {
         if (this.showModal === false) {
           Webcam.reset();
         }
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>
 
