@@ -1,5 +1,9 @@
 # shift
 
+## 環境需求
+* Git
+* Nodejs
+
 ## 安裝module
 ```
 npm install
