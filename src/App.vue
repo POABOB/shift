@@ -1,16 +1,16 @@
 <template>
-  <div id="app">
+<div id="app">
     <Shift />
-  </div>
+</div>
 </template>
 
 <script>
 import Shift from "./components/Shift.vue";
 document.title = "打卡排班系統";
 export default {
-  name: "App",
-  components: {
-    Shift
-  }
+    name: "App",
+    components: {
+        Shift,
+    },
 };
 </script>

@@ -1,21 +1,21 @@
 # shift
 
-## Project setup
+## 安裝module
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### 開發
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### 上線build
 ```
 npm run build
 ```
 
-### Lints and fixes files
+### lint code
 ```
 npm run lint
 ```

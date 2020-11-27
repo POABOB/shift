@@ -12,6 +12,7 @@
         "core-js": "^3.6.5",
         "exif-js": "^2.3.0",
         "vue": "^2.6.11",
+        "vue-toastr": "^2.1.2",
         "webcamjs": "^1.0.26"
     },
     "devDependencies": {
