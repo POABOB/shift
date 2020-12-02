@@ -6,12 +6,12 @@
             <h1>{{ clinicName }}</h1>
             <input type="hidden" id="img" />
             <!-- 先出現已排班員工，再出現位排班員工  -->
-            <button v-for="(d, index1) in employee_in_shift" :key="d.employee_id" class="btn medium green" @click="Cam(d.employee_id)">
+            <button v-for="(d) in employee_in_shift" :key="d.employee_id" class="btn medium green" @click="Cam(d.employee_id)">
                 {{ d.name }}
             </button>
             <br />
             <hr v-show="hrShow" />
-            <button v-for="(d, index2) in employee_not_in_shift" :key="d.employee_id" class="btn medium green" @click="Cam(d.employee_id)">
+            <button v-for="(d) in employee_not_in_shift" :key="d.employee_id" class="btn medium green" @click="Cam(d.employee_id)">
                 {{ d.name }}
             </button>
         </div>
@@ -79,7 +79,7 @@ export default {
     },
     data() {
         return {
-            clinicId: 43,
+            clinicId: 33,
             clinicName: "",
             date: new Date().Format("yyyy-MM-dd"),
             mode: {
@@ -124,7 +124,7 @@ export default {
             postData: {
                 employee_id: null,
                 datetime: null,
-                clinic_id: 43,
+                clinic_id: 33,
                 type: null,
                 over_time: 0,
             },
@@ -146,7 +146,7 @@ export default {
         };
     },
     created() {
-        console.log('2020-11-22');
+        console.log('2020-12-02');
         //一次性資料
         this.getClinicData();
 
@@ -171,9 +171,11 @@ export default {
         timer() {
             //時間更新
             const update = function () {
-                document.getElementById("datetime").innerHTML = new Date().Format(
-                    "yyyy-MM-dd hh:mm:ss"
-                );
+                let time = new Date().Format("yyyy-MM-dd hh:mm:ss");
+                document.getElementById("datetime").innerHTML = time;
+                if(time.substr(11, 18) == "00:00:01") {
+                    location.reload();
+                }
             };
             setInterval(update, 1000);
         },
@@ -360,94 +362,100 @@ export default {
                 });
         },
         takeSnapshot(employee_id, type = "") {
-            //TODO 加班詢問
-            if (type === "") {
-                //詢問是否打卡
-                if (confirm("是否打卡加班?")) {
+            //判斷date是否有落差
+            if(this.date !== new Date().Format("yyyy-MM-dd")) {
+                alert("資料重整中，請重新打卡...")
+                location.reload();
+            } else {
+                //加班詢問
+                if (type === "") {
+                    //詢問是否打卡
+                    if (confirm("是否打卡加班?")) {
+                        //拍照並且詢問是否要打卡，若無則不執行saveRemote
+                        const time = new Date().Format("yyyy-MM-dd hh:mm:ss");
+                        Webcam.snap(function (dataUri) {
+                            document.getElementById("img").value = dataUri;
+                        });
+
+                        //判斷加班時數
+                        //獲取該員工排班
+                        const shift = this.shift.find((d) => d.employee_id == employee_id);
+                        //獲取可下班的shift
+                        let offShift = this.employeeData.shift.filter(
+                            (d) => d.slice(0, 3) === "off"
+                        );
+                        //獲取未打卡，且可打卡的班別
+                        let shift_data = [];
+                        offShift.forEach((item) => {
+                            if (
+                                this.employeeRecord[item] == "" ||
+                                this.employeeRecord[item + "_o"] == "" ||
+                                this.employeeRecord[item + "_o2"] == ""
+                            ) {
+                                //現在時間減去下班時間
+                                let overTime = Math.floor(
+                                    new Date(
+                                        new Date() -
+                                        new Date(
+                                            new Date().Format("yyyy-MM-dd ") +
+                                            shift.data[0].shift[item]
+                                        )
+                                    ).getTime() / 60000
+                                );
+                                if (overTime > parseInt(this.attendance.is_overtime.param1)) {
+                                    this.attendance.is_overtime.param2;
+                                    shift_data.push({
+                                        type: item,
+                                        time: shift.data[0].shift[item],
+                                        over: (overTime - (parseInt(this.attendance.is_overtime.param1) - parseInt(this.attendance.is_overtime.param2))),
+                                    });
+                                }
+                            }
+                        });
+
+                        let over_time = 0;
+                        shift_data.forEach((item) => {
+                            if (over_time === 0) {
+                                type = item.type + "_o";
+                                over_time = item.over;
+                            } else if (over_time > item.over) {
+                                type = item.type + "_o";
+                                over_time = item.over;
+                            }
+                        });
+
+                        this.postData.employee_id = employee_id;
+                        this.postData.datetime = time;
+                        this.postData.type = type;
+                        this.postData.over_time = over_time;
+                        this.saveRemote();
+                    }
+                } else {
                     //拍照並且詢問是否要打卡，若無則不執行saveRemote
                     const time = new Date().Format("yyyy-MM-dd hh:mm:ss");
                     Webcam.snap(function (dataUri) {
                         document.getElementById("img").value = dataUri;
                     });
-
-                    //判斷加班時數
-                    //獲取該員工排班
-                    const shift = this.shift.find((d) => d.employee_id == employee_id);
-                    //獲取可下班的shift
-                    let offShift = this.employeeData.shift.filter(
-                        (d) => d.slice(0, 3) === "off"
-                    );
-                    //獲取未打卡，且可打卡的班別
-                    let shift_data = [];
-                    offShift.forEach((item) => {
-                        if (
-                            this.employeeRecord[item] == "" ||
-                            this.employeeRecord[item + "_o"] == "" ||
-                            this.employeeRecord[item + "_o2"] == ""
-                        ) {
-                            //現在時間減去下班時間
-                            let overTime = Math.floor(
-                                new Date(
-                                    new Date() -
-                                    new Date(
-                                        new Date().Format("yyyy-MM-dd ") +
-                                        shift.data[0].shift[item]
-                                    )
-                                ).getTime() / 60000
-                            );
-                            if (overTime > parseInt(this.attendance.is_overtime.param1)) {
-                                this.attendance.is_overtime.param2;
-                                shift_data.push({
-                                    type: item,
-                                    time: shift.data[0].shift[item],
-                                    over: (overTime - (parseInt(this.attendance.is_overtime.param1) - parseInt(this.attendance.is_overtime.param2))),
-                                });
-                            }
-                        }
-                    });
-
-                    let over_time = 0;
-                    shift_data.forEach((item) => {
-                        if (over_time === 0) {
-                            type = item.type + "_o";
-                            over_time = item.over;
-                        } else if (over_time > item.over) {
-                            type = item.type + "_o";
-                            over_time = item.over;
-                        }
-                    });
-
+                    // if (confirm("是否打卡?")) {
+                    //上傳至local server
                     this.postData.employee_id = employee_id;
                     this.postData.datetime = time;
                     this.postData.type = type;
-                    this.postData.over_time = over_time;
+                    this.postData.over_time = 0;
                     this.saveRemote();
+                    // }
                 }
-            } else {
-                //拍照並且詢問是否要打卡，若無則不執行saveRemote
-                const time = new Date().Format("yyyy-MM-dd hh:mm:ss");
-                Webcam.snap(function (dataUri) {
-                    document.getElementById("img").value = dataUri;
-                });
-                // if (confirm("是否打卡?")) {
-                //上傳至local server
-                this.postData.employee_id = employee_id;
-                this.postData.datetime = time;
-                this.postData.type = type;
-                this.postData.over_time = 0;
-                this.saveRemote();
-                // }
             }
         },
         btnDisabled(type = "") {
-            const arr = [
-                "on_1st",
-                "off_1st",
-                "on_2nd",
-                "off_2nd",
-                "on_3rd",
-                "off_3rd",
-            ];
+            // const arr = [
+            //     "on_1st",
+            //     "off_1st",
+            //     "on_2nd",
+            //     "off_2nd",
+            //     "on_3rd",
+            //     "off_3rd",
+            // ];
             // 先判斷是否有排班
             if (this.employeeData.shift.length === 0) {
                 if (this.employeeRecord[type] !== "") {
@@ -496,7 +504,6 @@ export default {
                     (d) => d.slice(0, 3) === "off"
                 );
                 //獲取未打卡，且可打卡的班別
-                let shift_data = [];
                 for (let item of offShift) {
                     if (
                         this.employeeRecord[item] == "" &&
