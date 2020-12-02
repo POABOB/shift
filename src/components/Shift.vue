@@ -3,7 +3,9 @@
     <div id="results"></div>
     <div id="app">
         <div class="center">
+            
             <h1>{{ clinicName }}</h1>
+            <span class="version">{{ version }}</span>
             <input type="hidden" id="img" />
             <!-- 先出現已排班員工，再出現位排班員工  -->
             <button v-for="(d) in employee_in_shift" :key="d.employee_id" class="btn medium green" @click="Cam(d.employee_id)">
@@ -81,6 +83,7 @@ export default {
         return {
             clinicId: 33,
             clinicName: "",
+            version: "v1.1",
             date: new Date().Format("yyyy-MM-dd"),
             mode: {
                 prd: "34.80.179.232",
@@ -723,5 +726,12 @@ td {
 
 .btn.none {
     display: none;
+}
+
+.version {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: rgba(0, 0, 0, 0.5);
 }
 </style>
