@@ -204,7 +204,7 @@ export default {
         getClinicData() {
             axios
                 .get(
-                    `http://${this.mode.dev}/api_v1.1/shift/clinic?id=${btoa(
+                    `http://${this.mode.prd}/api_v1.1/shift/clinic?id=${btoa(
             this.clinicId + "." + this.date
           )}`
                 )
@@ -273,7 +273,7 @@ export default {
             //獲取該診所所有員工當日打卡紀錄
             axios
                 .get(
-                    `http://${this.mode.dev}/api_v1.1/shift/record?id=${btoa(
+                    `http://${this.mode.prd}/api_v1.1/shift/record?id=${btoa(
             this.clinicId + "." + this.date
           )}`
                 )
@@ -359,7 +359,7 @@ export default {
             //插入遠端server
             axios
                 .post(
-                    `http://${this.mode.dev}/api_v1.1/shift/record/add?id=${btoa(
+                    `http://${this.mode.prd}/api_v1.1/shift/record/add?id=${btoa(
             this.clinicId + "." + this.date
           )}`,
                     form,
