@@ -10,6 +10,8 @@ const toastrConfig = {
     defaultPosition: "toast-top-right",
 };
 
+import 'bootstrap/dist/css/bootstrap.css'
+
 Vue.use(Toastr, toastrConfig);
 Vue.config.productionTip = false
 

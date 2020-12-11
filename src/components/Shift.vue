@@ -2,73 +2,95 @@
 <div>
     <div id="results"></div>
     <div id="app">
-        <div class="center">
-            
-            <h1>{{ clinicName }}</h1>
-            <span class="version">{{ version }}</span>
-            <input type="hidden" id="img" />
-            <!-- 先出現已排班員工，再出現位排班員工  -->
-            <button v-for="(d) in employee_in_shift" :key="d.employee_id" class="btn medium green" @click="Cam(d.employee_id)">
-                {{ d.name }}
-            </button>
-            <br />
-            <hr v-show="hrShow" />
-            <button v-for="(d) in employee_not_in_shift" :key="d.employee_id" class="btn medium green" @click="Cam(d.employee_id)">
-                {{ d.name }}
-            </button>
-        </div>
-
-        <modal :show.sync="showModal" title="員工打卡資料">
-            <div id="time">
-                <h1 id="datetime"></h1>
-            </div>
-
-            <table>
-                <tbody>
-                    <tr>
-                        <th>員工名稱</th>
-                        <td><span v-text="employeeData.name"></span></td>
-                    </tr>
-                    <tr>
-                        <th>班別</th>
-                        <td><span v-text="employeeData.shift_name"></span></td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="flex">
-                <div id="my_camera"></div>
-                <!-- if else 判斷是已經打卡，避免重複打卡 -->
-                <div id="buttons" :class="{ none: isNone }">
-                    <button :disabled="btnDisabled('on_1st')" @click="takeSnapshot(employeeData.employee_id, 'on_1st')" class="btn red">
-                        <span v-text="onBtns('on_1st')"></span>
+        <div class="container-fluid ">
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 sidebar">
+                    <span class="version" v-text="version"></span>
+                    <div class="time" id="datetime"></div>
+                    <div class="title">
+                        <h4 v-text="clinicName"></h4>
+                    </div>
+                    <img src="@/assets/images/01.png" alt="">
+                </div>
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 main">
+                    <input type="hidden" id="img" />
+                    <!-- 先出現已排班員工，再出現位排班員工  -->
+                    <button v-for="(d) in employee_in_shift" :key="d.employee_id" class="name" @click="Cam(d.employee_id)">
+                        {{ d.name }}
                     </button>
-                    <button :disabled="btnDisabled('off_1st')" @click="takeSnapshot(employeeData.employee_id, 'off_1st')" class="btn red">
-                        <span v-text="offBtns('off_1st')"></span>
-                    </button>
-                    <button :disabled="btnDisabled('on_2nd')" @click="takeSnapshot(employeeData.employee_id, 'on_2nd')" class="btn green">
-                        <span v-text="onBtns('on_2nd')"></span>
-                    </button>
-                    <button :disabled="btnDisabled('off_2nd')" @click="takeSnapshot(employeeData.employee_id, 'off_2nd')" class="btn green">
-                        <span v-text="offBtns('off_2nd')"></span>
-                    </button>
-                    <button :disabled="btnDisabled('on_3rd')" @click="takeSnapshot(employeeData.employee_id, 'on_3rd')" class="btn purple">
-                        <span v-text="onBtns('on_3rd')"></span>
-                    </button>
-                    <button :disabled="btnDisabled('off_3rd')" @click="takeSnapshot(employeeData.employee_id, 'off_3rd')" class="btn purple">
-                        <span v-text="offBtns('off_3rd')"></span>
-                    </button>
-                    <button class="btn yellow" :class="{ none: isNone }" @click="takeSnapshot(employeeData.employee_id)">
-                        加班下班
+                    <br />
+                    <hr v-show="hrShow" />
+                    <button v-for="(d) in employee_not_in_shift" :key="d.employee_id" class="name" @click="Cam(d.employee_id)">
+                        {{ d.name }}
                     </button>
                 </div>
             </div>
-        </modal>
+        </div>
+        <div class="mask" id="mask" @click="modalToggle()"></div>
+        <!-- modal start -->
+        <div class="windows" :class="{ none: isNone }" id="windows">
+            <div class="windows-title">
+                <div class="title">員工打卡資料</div>
+                <div class="tltle-time"><span v-text="date"></span></div>
+            </div>
+            <div class="time" id="datetime2"></div>
+            <div class="personal">
+                <div class="personal-left">
+                    <div id="my_camera"></div>
+                </div>
+                <div class="personal-right">
+                    <h5>員工姓名</h5>
+                    <div class="input"><span v-text="employeeData.name"></span></div>
+                    <h5>班別</h5>
+                    <div class="input"><span v-text="employeeData.shift_name"></span></div>
+                </div>
+            </div>
+            <div class="work">
+                <div class="work-1">
+                    <div class="work-1-title">第一班</div>
+                    <div class="start" :class="{ disabled: btnDisabled('on_1st') }" @click="takeSnapshot(employeeData.employee_id, 'on_1st')">
+                        <img src="@/assets/images/start.png" class="icon">
+                        <h5 v-text="onBtns('on_1st')"></h5>
+                    </div>
+                    <div class="off" :class="{ disabled: btnDisabled('off_1st') }" @click="takeSnapshot(employeeData.employee_id, 'off_1st')">
+                        <img src="@/assets/images/off.png" class="icon">
+                        <h5 v-text="offBtns('off_1st')"></h5>
+                    </div>
+                </div>
+                <div class="work-2">
+                    <div class="work-2-title">第二班</div>
+                    <div class="start" :class="{ disabled: btnDisabled('on_2nd') }" @click="takeSnapshot(employeeData.employee_id, 'on_2nd')">
+                        <img src="@/assets/images/start.png" class="icon">
+                        <h5 v-text="onBtns('on_2nd')"></h5>
+                    </div>
+                    <div class="off" :class="{ disabled: btnDisabled('off_2nd') }" @click="takeSnapshot(employeeData.employee_id, 'off_2nd')">
+                        <img src="@/assets/images/off.png" class="icon">
+                        <h5 v-text="offBtns('off_2nd')"></h5>
+                    </div>
+                </div>
+                <div class="work-3">
+                    <div class="work-3-title">第三班</div>
+                    <div class="start" :class="{ disabled: btnDisabled('on_3rd') }" @click="takeSnapshot(employeeData.employee_id, 'on_3rd')">
+                        <img src="@/assets/images/start.png" class="icon">
+                        <h5 v-text="onBtns('on_3rd')"></h5>
+                    </div>
+                    <div class="off" :class="{ disabled: btnDisabled('off_3rd') }" @click="takeSnapshot(employeeData.employee_id, 'off_3rd')">
+                        <img src="@/assets/images/off.png" class="icon">
+                        <h5 v-text="offBtns('off_3rd')"></h5>
+                    </div>
+                </div>
+            </div>
+            <button class="red button" :class="{ none: isNone }" @click="takeSnapshot(employeeData.employee_id)">
+                加班下班
+            </button>
+            <input type="button" value="✕  關閉" class="button" @click="modalToggle()" />
+        </div>
+        <!-- modal end -->
     </div>
 </div>
 </template>
 
 <script>
-import modal from "./modal.vue";
 import axios from "axios";
 import ImageHelper from "../utils/imghelper";
 import Webcam from "webcamjs";
@@ -76,14 +98,11 @@ import Webcam from "webcamjs";
 export default {
     title: "打卡排班系統",
     name: "Shift",
-    components: {
-        modal,
-    },
     data() {
         return {
             clinicId: 33,
             clinicName: "",
-            version: "v1.1",
+            version: "v1.2",
             date: new Date().Format("yyyy-MM-dd"),
             mode: {
                 prd: "34.80.179.232",
@@ -149,7 +168,6 @@ export default {
         };
     },
     created() {
-        console.log('2020-12-02');
         //一次性資料
         this.getClinicData();
 
@@ -165,17 +183,18 @@ export default {
             //建立webcam配置
             Webcam.set(this.webcam);
             Webcam.attach("#my_camera");
-            this.showModal = true;
             this.getEmployeeData(id);
             this.getEmployeeRecord(id);
             this.checkOverTimeBtn(id);
             this.$nextTick();
+            this.modalToggle()
         },
         timer() {
             //時間更新
             const update = function () {
                 let time = new Date().Format("yyyy-MM-dd hh:mm:ss");
                 document.getElementById("datetime").innerHTML = time;
+                document.getElementById("datetime2").innerHTML = time.substr(-8);
                 if(time.substr(11, 18) == "00:00:01") {
                     location.reload();
                 }
@@ -185,7 +204,7 @@ export default {
         getClinicData() {
             axios
                 .get(
-                    `http://${this.mode.prd}/api_v1.1/shift/clinic?id=${btoa(
+                    `http://${this.mode.dev}/api_v1.1/shift/clinic?id=${btoa(
             this.clinicId + "." + this.date
           )}`
                 )
@@ -254,7 +273,7 @@ export default {
             //獲取該診所所有員工當日打卡紀錄
             axios
                 .get(
-                    `http://${this.mode.prd}/api_v1.1/shift/record?id=${btoa(
+                    `http://${this.mode.dev}/api_v1.1/shift/record?id=${btoa(
             this.clinicId + "." + this.date
           )}`
                 )
@@ -340,7 +359,7 @@ export default {
             //插入遠端server
             axios
                 .post(
-                    `http://${this.mode.prd}/api_v1.1/shift/record/add?id=${btoa(
+                    `http://${this.mode.dev}/api_v1.1/shift/record/add?id=${btoa(
             this.clinicId + "." + this.date
           )}`,
                     form,
@@ -354,7 +373,7 @@ export default {
               )} 打卡完成`
                         );
                         this.getShiftRecord();
-                        this.showModal = false;
+                        this.modalToggle();
                         this.$nextTick();
                     } else {
                         alert("打卡失敗!");
@@ -451,14 +470,6 @@ export default {
             }
         },
         btnDisabled(type = "") {
-            // const arr = [
-            //     "on_1st",
-            //     "off_1st",
-            //     "on_2nd",
-            //     "off_2nd",
-            //     "on_3rd",
-            //     "off_3rd",
-            // ];
             // 先判斷是否有排班
             if (this.employeeData.shift.length === 0) {
                 if (this.employeeRecord[type] !== "") {
@@ -540,37 +551,36 @@ export default {
         offBtns(type) {
             if (this.employeeRecord.employee_id !== 0) {
                 if (this.employeeRecord[type] !== "") {
-                    return this.employeeRecord[type].datetime;
+                    return this.employeeRecord[type].datetime.substr(0, 5);
                 } else if (this.employeeRecord[type + "_o"] !== "") {
-                    return this.employeeRecord[type + "_o"].datetime + "(加班)";
+                    return this.employeeRecord[type + "_o"].datetime.substr(0, 5) + "(加)";
                 } else if (this.employeeRecord[type + "_o2"] !== "") {
-                    return this.employeeRecord[type + "_o2"].datetime + "(加班)";
+                    return this.employeeRecord[type + "_o2"].datetime.substr(0, 5) + "(加)";
                 } else {
-                    if (type.slice(4, 5) === "1") {
-                        return "第一班下班";
-                    } else if (type.slice(4, 5) === "2") {
-                        return "第二班下班";
-                    } else {
-                        return "第三班下班";
-                    }
+                    return "下班";
                 }
             }
         },
         onBtns(type) {
             if (this.employeeRecord.employee_id !== 0) {
                 if (this.employeeRecord[type] !== "") {
-                    return this.employeeRecord[type].datetime;
+                    return this.employeeRecord[type].datetime.substr(0, 5);
                 } else {
-                    if (type.slice(3, 4) === "1") {
-                        return "第一班上班";
-                    } else if (type.slice(3, 4) === "2") {
-                        return "第二班上班";
-                    } else {
-                        return "第三班上班";
-                    }
+                    return "上班";
                 }
             }
         },
+        modalToggle() {
+            if(this.showModal === false) {
+                document.all.mask.style.display = 'block';
+                document.all.windows.style.display = 'block';
+                this.showModal = true;
+            } else{
+                document.getElementById('mask').style.display = 'none';
+                document.getElementById('windows').style.display = 'none';
+                this.showModal = false;
+            }
+        }
     },
     computed: {
         hrShow() {
@@ -582,8 +592,7 @@ export default {
             } else {
                 return true;
             }
-        },
-        // getEmployeeRecord() {},
+        }
     },
     watch: {
         showModal: {
@@ -599,139 +608,362 @@ export default {
 </script>
 
 <style lang="css">
-* {
-    padding: 0px;
-    margin: 0px;
-    box-sizing: border-box;
-}
-
 html {
-    font-family: "Quicksand", sans-serif;
-    line-height: 1.5;
+  font-family: Microsoft JhengHei;
+  line-height: 1.15; /* 1 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+body {
+  margin: 0px;
+  padding: 0px;
+}
+.container-fluid{
+  height: 100vh;
+  width: 100vw;
+}
+.sidebar{
+  height: 100vh;
+  background:linear-gradient(315deg, #787FB9 , #A8ACD2 );
+  text-align: center;
+}
+.sidebar img{
+  width: 95%;
+}
+.sidebar .time{
+  margin-top: 20%;
+  color: #fff;
+}
+.sidebar .title{
+  background-color:#CED2F8;
+  border-radius: 45px;
+  margin-left: 20%;
+  margin-right: 20%;
+  margin-top: 1%;
+  margin-bottom: 20%;
+}
+.sidebar .title h4{
+  color:#3F489C;
+  font-weight: bold;
+  line-height: 200%;
+}
+.main{
+  height: 100vh;
+  background:linear-gradient(315deg, #646DC1 , #BCC1EF );
+}
+.main .name{
+  display: inline-block;
+  border-radius: 45px;
+  border: 0px;
+  width: 140px;
+  background: #fff;
+  margin:20px 10px;
+  box-shadow: 0 1px 20px  #9DA2CF;  
+  color: #515151;
+  text-align: center;
+  line-height: 45px;
+  font-size: 18px;
+  font-weight: 600;
+}
+.mask {
+  background-color: #000000;
+  opacity: 0.5;
+  display: none;
+  z-index: 2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;  
+}
+.windows {
+  width: 600px;
+  height: 680px;
+  background-color: #ffffff;
+  opacity: 1;
+  margin: 0px auto;
+  display: none;
+  z-index: 3;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -315px;
+  margin-top: -350px;
+}
+.windows-title{
+  background-color: #646DC1;
+  width: 600px;
+  height: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.windows-title .title{
+  color: #fff;
+  display: inline-block;
+  line-height: 40px;
+}
+.windows-title .tltle-time{
+  color: #fff;
+  display: inline-block;
+  line-height: 200%;
+  width: 450px;
+  text-align: right;
+  line-height: 40px;
+
+}
+.windows .time{
+  background-color: #F0F0F0;
+  margin: 20px auto;
+  width: 200px;
+  color: #4D57B7;
+  font-size: 30px;
+  font-weight: bold;
+  text-align: center;
+  border:1px #E2E2E2 solid;
+  border-radius: 10px;
+}
+.windows .personal{
+  display: flex;
+}
+.windows .personal-left{
+  flex: 1;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.windows .personal-left img{
+  width: 100%;
+}
+.windows .personal-right{
+  flex: 1;
+}
+.windows .personal-right h5{
+  color: #8B8B8B;
+}
+.windows .personal-right .input{
+  padding: 5px 10px;
+  margin-bottom: 20px;
+  width: 260px;
+  border-radius: 5px;
+  background-color: #EAEAEA;
+  color: #777CAE;
+  font-weight: bold;
+  font-size: 20px;
+}
+.windows .work{
+  display: flex;
+  height: 220px;
+  padding: 40px 20px 0px;
+}
+.windows .work .work-1{
+  flex:1;
+  background-color: #79C9B9;
+  border-radius: 5px;
+  width: 20%;
+  margin-right: 10px;
+}
+.windows .work .work-1 .work-1-title{
+  background-color: #8CD1C3;
+  height: 30px;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  line-height: 30px;
+  border-radius: 5px 5px 0% 0%;
+}
+.windows .work .work-2{
+  flex:1;
+  background-color: #E3BA59;
+  margin-right: 10px;
+  margin-left: 10px;
+  border-radius: 5px;
+  width: 20%;
+}
+.windows .work .work-2 .work-2-title{
+  background-color: #E7C470;
+  height: 30px;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  line-height: 30px;
+  border-radius: 5px 5px 0% 0%;
+}
+.windows .work .work-3{
+  flex:1;
+  background-color: #6491AC;
+  margin-left: 10px;
+  border-radius: 5px;
+  width: 20%;
+}
+.windows .work .work-3 .work-3-title{
+  background-color: #7AA1B8;
+  height: 30px;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  line-height: 30px;
+  border-radius: 5px 5px 0% 0%;
+}
+.icon{
+  display: inline-block;
+  width: 25px;
+  height: auto;
+  border-radius: 50%;
+  position: relative;
+  top:-3px;
+  left: -5px;
+}
+.start{
+  background-color: #ffffff;
+  border-radius: 45px;
+  width: 140px;
+  height: 50px;
+  margin: 15px auto;
+  box-shadow: 0px 0px  #000;  
+  padding-left: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor:pointer;
+}
+.start h5{
+  line-height: 50px;
+  display: inline-block;
+  color: #2A8998;
+  font-weight: bold;
+}
+.off{
+  background-color: #ffffff;
+  border-radius: 45px;
+  width: 140px;
+  height: 50px;
+  margin: 15px auto;
+  box-shadow: 0px 0px  #000;  
+  padding-left: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor:pointer;
+}
+.off h5{
+  line-height: 50px;
+  display: inline-block;
+  color: #BB7B99;
+  font-weight: bold;
+}
+.button{
+  background-color: #BFBFBF;
+  border: 0px;
+  border-radius: 45px;
+  width: 560px;
+  height: 50px;
+  margin: 10px 20px 0px;
+  padding-left: 20px;
+  font-size: 18px;
+  color: #fff;
+  text-align: center;
 }
 
-h2,
-h3 {
-    margin-top: 0;
-}
 
-#results {
-    border: 1px solid;
-    background: #ccc;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
+/* 深色主題 */
 
-img {
-    width: 400px;
-    height: 300px;
-}
 
-#my_camera,
-#time {
-    text-align: center;
-    margin: 0 auto;
+.dark .sidebar{
+  background:none;
+  background-color: #1C354C;
+  text-align: center;
 }
-
-table,
-td,
-th {
-    border: 1px solid #ddd;
-    text-align: left;
+.dark .sidebar img{
+  width: 90%;
 }
-
-table {
-    border-collapse: collapse;
-    width: 100%;
+.dark .sidebar .title{
+  background-color:#435B72;
+  margin-bottom: 10%;
 }
-
-th,
-td {
-    padding: 15px;
+.dark .sidebar .title h4{
+  color:#fff;
 }
-
-.center {
-    text-align: center;
-    padding: 5% 10% 10% 10%;
+.dark .main{
+  background:linear-gradient(315deg, #295994 , #425B73 );
 }
-
-.center button {
-    margin: 5px 0;
+.dark .main .name{
+  background: #65819D;
+  box-shadow: 0px 0px #000;  
+  color: #fff;
 }
-
-.btn {
-    color: #000;
+.dark .windows {
+  background-color: #203648;
 }
-
-.btn.green {
-    background: #d5e7d4;
-    border: 1px solid #a1c690;
-    margin: 10px;
-    padding: 15px 20px 25px 20px;
+.dark .windows-title{
+  background-color: #6E7C88;
 }
-
-.btn.green:hover {
-    background: #a1c690;
+.dark .windows .time{
+  background-color: #465C6E;
+  color: #fff;
+  font-size: 30px;
+  font-weight: bold;
+  text-align: center;
+  border:0px ;
 }
-
-.btn.red:hover {
-    background: #cc8481;
+.dark .windows .personal-right h5{
+  color: #BCBCBD;
 }
-
-.btn.red {
-    background: #f6cfcc;
-    border: 1px solid #cc8481;
+.dark .windows .personal-right .input{
+  background-color: #465C6E;
+  color: #52DAFC;
 }
-
-.btn.purple {
-    background: #e2d4e6;
-    border: 1px solid #b39abf;
+.dark .windows .work .work-box{
+  flex:1;
+  background-color: #465C6E;
+  border-radius: 5px;
+  width: 20%;
+  margin-right: 10px;
 }
-
-.btn.purple:hover {
-    background: #b39abf;
+.dark .windows .work .work-title{
+  background-color: #607383;
+  height: 30px;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  line-height: 30px;
+  border-radius: 5px 5px 0% 0%;
 }
-
-.flex {
-    display: flex;
+.dark .start{
+  background-color: #364755;
 }
-
+.dark .start h5{
+  color: #52BD96;
+}
+.dark .off{
+  background-color: #364755;
+}
+.dark .off h5{
+  color: #C582AC;
+}
+.dark .button{
+  background-color: #192A38;
+}
 #my_camera {
-    width: 40%;
+    margin: -50px 0 -50px 0;
 }
 
-#buttons {
-    width: 60%;
-    padding: 35px 10px 25px 10px;
+.red.button{
+  background-color: #C582AC;
 }
-
-#buttons button {
-    margin: 2px 0;
-    width: 49%;
-    height: 27%;
+/* div disabled */
+.start.disabled, .off.disabled {
+    background-color: #eee;
+    pointer-events: none;
+    opacity: 0.5;
 }
-
-#buttons.none button {
-    margin: 2px 0;
-    width: 49%;
-    height: 30%;
-}
-
-.btn.yellow {
-    background: #f5edbf;
-    border: 1px solid #cac974;
-    width: 99% !important;
-}
-
-.btn.none {
+/* isNONE css change */
+.button.none {
     display: none;
 }
-
+.windows.none {
+    height: 630px;
+}
 .version {
     position: absolute;
-    left: 0;
-    top: 0;
-    color: rgba(0, 0, 0, 0.5);
+    top: 10px;
+    left: 10px;
+    color: #eee;
+    opacity: 0.5;
 }
 </style>
