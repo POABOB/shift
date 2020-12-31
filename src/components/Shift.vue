@@ -102,7 +102,7 @@ export default {
         return {
             clinicId: 33,
             clinicName: "",
-            version: "v1.2",
+            version: "v1.3",
             date: new Date().Format("yyyy-MM-dd"),
             mode: {
                 prd: "34.80.179.232",
@@ -146,7 +146,7 @@ export default {
             postData: {
                 employee_id: null,
                 datetime: null,
-                clinic_id: 33,
+                clinic_id: 0,
                 type: null,
                 over_time: 0,
             },
@@ -450,6 +450,7 @@ export default {
                         this.postData.datetime = time;
                         this.postData.type = type;
                         this.postData.over_time = over_time;
+                        this.postData.clinic_id = this.clinicId;
                         this.saveRemote();
                     }
                 } else {
@@ -464,6 +465,7 @@ export default {
                     this.postData.datetime = time;
                     this.postData.type = type;
                     this.postData.over_time = 0;
+                    this.postData.clinic_id = this.clinicId;
                     this.saveRemote();
                     // }
                 }
