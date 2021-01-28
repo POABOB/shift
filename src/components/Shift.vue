@@ -94,6 +94,7 @@
 import axios from "axios";
 import ImageHelper from "../utils/imghelper";
 import Webcam from "webcamjs";
+require('date-time-format-timezone'); 
 
 export default {
     title: "打卡排班系統",
@@ -102,8 +103,8 @@ export default {
         return {
             clinicId: 33,
             clinicName: "",
-            version: "v1.3",
-            date: new Date().Format("yyyy-MM-dd"),
+            version: "v1.4",
+            date: "0000-00-00",
             mode: {
                 prd: "34.80.179.232",
                 dev: "localhost",
@@ -168,7 +169,13 @@ export default {
         };
     },
     created() {
-        //一次性資料
+        if(!navigator.userAgent.match('Chrome')) {
+            alert('不支援該瀏覽器！');
+        }
+        //時區校正
+       const d = this.changeTimezone(new Date(), 'Asia/Taipei');
+        this.date = d.Format("yyyy-MM-dd");
+       //一次性資料
         this.getClinicData();
 
         //利用token獲取診所人員紀錄
@@ -189,10 +196,31 @@ export default {
             this.$nextTick();
             this.modalToggle()
         },
+        changeTimezone(date, ianatz) {
+            // suppose the date is 12:00 UTC
+            var invdate = new Date(date.toLocaleString('en-US', {
+                timeZone: ianatz
+            }));
+
+            // then invdate will be 07:00 in Toronto
+            // and the diff is 5 hours
+            var diff = date.getTime() - invdate.getTime();
+
+            // so 12:00 in Toronto is 17:00 UTC
+            return new Date(date.getTime() - diff); // needs to substract
+        },
         timer() {
             //時間更新
             const update = function () {
-                let time = new Date().Format("yyyy-MM-dd hh:mm:ss");
+                //時區校正START
+                const date = new Date();
+                var invdate = new Date(date.toLocaleString('en-US', {
+                    timeZone: 'Asia/Taipei'
+                }));
+                var diff = date.getTime() - invdate.getTime();
+                const d = new Date(date.getTime() - diff);
+                //時區校正END
+                let time = d.Format("yyyy-MM-dd hh:mm:ss");
                 document.getElementById("datetime").innerHTML = time;
                 document.getElementById("datetime2").innerHTML = time.substr(-8);
                 if(time.substr(11, 18) == "00:00:01") {
@@ -385,7 +413,8 @@ export default {
         },
         takeSnapshot(employee_id, type = "") {
             //判斷date是否有落差
-            if(this.date !== new Date().Format("yyyy-MM-dd")) {
+            const d = this.changeTimezone(new Date(), 'Asia/Taipei');
+            if(this.date !== d.Format("yyyy-MM-dd")) {
                 alert("資料重整中，請重新打卡...")
                 location.reload();
             } else {
@@ -394,7 +423,7 @@ export default {
                     //詢問是否打卡
                     if (confirm("是否打卡加班?")) {
                         //拍照並且詢問是否要打卡，若無則不執行saveRemote
-                        const time = new Date().Format("yyyy-MM-dd hh:mm:ss");
+                        const time = d.Format("yyyy-MM-dd hh:mm:ss");
                         Webcam.snap(function (dataUri) {
                             document.getElementById("img").value = dataUri;
                         });
@@ -419,7 +448,7 @@ export default {
                                     new Date(
                                         new Date() -
                                         new Date(
-                                            new Date().Format("yyyy-MM-dd ") +
+                                            this.date + " " +
                                             shift.data[0].shift[item]
                                         )
                                     ).getTime() / 60000
@@ -455,7 +484,7 @@ export default {
                     }
                 } else {
                     //拍照並且詢問是否要打卡，若無則不執行saveRemote
-                    const time = new Date().Format("yyyy-MM-dd hh:mm:ss");
+                    const time = d.Format("yyyy-MM-dd hh:mm:ss");
                     Webcam.snap(function (dataUri) {
                         document.getElementById("img").value = dataUri;
                     });
@@ -531,7 +560,7 @@ export default {
                             new Date(
                                 new Date() -
                                 new Date(
-                                    new Date().Format("yyyy-MM-dd ") + shift.data[0].shift[item]
+                                    this.date + " " + shift.data[0].shift[item]
                                 )
                             ).getTime() / 60000
                         );
