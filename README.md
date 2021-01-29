@@ -19,6 +19,11 @@ npm run serve
 npm run build
 ```
 
+### build全部診所
+```
+npm run build-all
+```
+
 ### lint code
 ```
 npm run lint
