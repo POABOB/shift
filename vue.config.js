@@ -6,6 +6,12 @@ module.exports = {
     lintOnSave: true,
     runtimeCompiler: false,
     productionSourceMap: false,
+    configureWebpack: {
+        devtool: 'source-map',
+        performance: {
+            hints: false
+        }
+    },
     devServer: {
         open: process.platform === "darwin",
         port: 8000,

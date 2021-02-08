@@ -28,7 +28,7 @@
         </div>
         <div class="mask" id="mask" @click="modalToggle()"></div>
         <!-- modal start -->
-        <div class="windows" :class="{ none: isNone }" id="windows">
+        <div class="windows" :class="{ none: windowsBtn }" id="windows">
             <div class="windows-title">
                 <div class="title">員工打卡資料</div>
                 <div class="tltle-time"><span v-text="date"></span></div>
@@ -45,45 +45,80 @@
                     <div class="input"><span v-text="employeeData.shift_name"></span></div>
                 </div>
             </div>
-            <div class="work">
-                <div class="work-1">
-                    <div class="work-1-title">第一班</div>
-                    <div class="start" :class="{ disabled: btnDisabled('on_1st') }" @click="takeSnapshot(employeeData.employee_id, 'on_1st')">
-                        <img src="@/assets/images/start.png" class="icon">
-                        <h5 v-text="onBtns('on_1st')"></h5>
+            <ul class="nav nav-pills custom justify-content-center">
+                <li class="nav-item">
+                    <span class="nav-link" @click="tab(0)" :class="{ active: nav[0] }">打卡</span>
+                </li>
+                <li class="nav-item">
+                    <span class="nav-link"  @click="tab(1)" :class="{ active: nav[1] }">簽到</span>
+                </li>
+            </ul>
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade" :class="{ active: nav[0] , show: nav[0]}">
+                    <div class="work">
+                        <div class="work-1">
+                            <div class="work-1-title">第一班</div>
+                            <div class="start" :class="{ disabled: btnDisabled('on_1st') }" @click="takeSnapshot(employeeData.employee_id, 'on_1st')">
+                                <img src="@/assets/images/start.png" class="icon">
+                                <h5 v-text="onBtns('on_1st')"></h5>
+                            </div>
+                            <div class="off" :class="{ disabled: btnDisabled('off_1st') }" @click="takeSnapshot(employeeData.employee_id, 'off_1st')">
+                                <img src="@/assets/images/off.png" class="icon">
+                                <h5 v-text="offBtns('off_1st')"></h5>
+                            </div>
+                        </div>
+                        <div class="work-2">
+                            <div class="work-2-title">第二班</div>
+                            <div class="start" :class="{ disabled: btnDisabled('on_2nd') }" @click="takeSnapshot(employeeData.employee_id, 'on_2nd')">
+                                <img src="@/assets/images/start.png" class="icon">
+                                <h5 v-text="onBtns('on_2nd')"></h5>
+                            </div>
+                            <div class="off" :class="{ disabled: btnDisabled('off_2nd') }" @click="takeSnapshot(employeeData.employee_id, 'off_2nd')">
+                                <img src="@/assets/images/off.png" class="icon">
+                                <h5 v-text="offBtns('off_2nd')"></h5>
+                            </div>
+                        </div>
+                        <div class="work-3">
+                            <div class="work-3-title">第三班</div>
+                            <div class="start" :class="{ disabled: btnDisabled('on_3rd') }" @click="takeSnapshot(employeeData.employee_id, 'on_3rd')">
+                                <img src="@/assets/images/start.png" class="icon">
+                                <h5 v-text="onBtns('on_3rd')"></h5>
+                            </div>
+                            <div class="off" :class="{ disabled: btnDisabled('off_3rd') }" @click="takeSnapshot(employeeData.employee_id, 'off_3rd')">
+                                <img src="@/assets/images/off.png" class="icon">
+                                <h5 v-text="offBtns('off_3rd')"></h5>
+                            </div>
+                        </div>
                     </div>
-                    <div class="off" :class="{ disabled: btnDisabled('off_1st') }" @click="takeSnapshot(employeeData.employee_id, 'off_1st')">
-                        <img src="@/assets/images/off.png" class="icon">
-                        <h5 v-text="offBtns('off_1st')"></h5>
-                    </div>
+                    <button class="red button" :class="{ none: isOnNone }" @click="takeSnapshot(employeeData.employee_id, 'on')">
+                        早到上班
+                    </button>
+                    <button class="red button" :class="{ none: isOffNone }" @click="takeSnapshot(employeeData.employee_id, 'off')">
+                        加班下班
+                    </button>
+                    <input type="button" value="✕  關閉" class="button" @click="modalToggle()" />
                 </div>
-                <div class="work-2">
-                    <div class="work-2-title">第二班</div>
-                    <div class="start" :class="{ disabled: btnDisabled('on_2nd') }" @click="takeSnapshot(employeeData.employee_id, 'on_2nd')">
-                        <img src="@/assets/images/start.png" class="icon">
-                        <h5 v-text="onBtns('on_2nd')"></h5>
+                <div class="tab-pane fade" :class="{ active: nav[1] , show: nav[1]}">
+                    <div class="work check">
+                        <div class="work-1">
+                            <div class="work-1-title">自由打卡</div>
+                            <div class="start" :class="{ disabled: checkBtnDisabled('on_1st') }" @click="takeCheckSnapshot(employeeData.employee_id, 'on_1st')">
+                                <img src="@/assets/images/start.png" class="icon">
+                                <h5 v-text="checkBtns('on_1st')"></h5>
+                            </div>
+                            <div class="off" :class="{ disabled: checkBtnDisabled('off_1st') }" @click="takeCheckSnapshot(employeeData.employee_id, 'off_1st')">
+                                <img src="@/assets/images/off.png" class="icon">
+                                <h5 v-text="checkBtns('off_1st')"></h5>
+                            </div>
+                        </div>
                     </div>
-                    <div class="off" :class="{ disabled: btnDisabled('off_2nd') }" @click="takeSnapshot(employeeData.employee_id, 'off_2nd')">
-                        <img src="@/assets/images/off.png" class="icon">
-                        <h5 v-text="offBtns('off_2nd')"></h5>
-                    </div>
-                </div>
-                <div class="work-3">
-                    <div class="work-3-title">第三班</div>
-                    <div class="start" :class="{ disabled: btnDisabled('on_3rd') }" @click="takeSnapshot(employeeData.employee_id, 'on_3rd')">
-                        <img src="@/assets/images/start.png" class="icon">
-                        <h5 v-text="onBtns('on_3rd')"></h5>
-                    </div>
-                    <div class="off" :class="{ disabled: btnDisabled('off_3rd') }" @click="takeSnapshot(employeeData.employee_id, 'off_3rd')">
-                        <img src="@/assets/images/off.png" class="icon">
-                        <h5 v-text="offBtns('off_3rd')"></h5>
-                    </div>
+                    <input type="button" value="✕  關閉" class="button" @click="modalToggle()" />
                 </div>
             </div>
-            <button class="red button" :class="{ none: isNone }" @click="takeSnapshot(employeeData.employee_id)">
-                加班下班
-            </button>
-            <input type="button" value="✕  關閉" class="button" @click="modalToggle()" />
+
+            
+            
+            
         </div>
         <!-- modal end -->
     </div>
@@ -101,9 +136,9 @@ export default {
     name: "Shift",
     data() {
         return {
-            clinicId: 33,
+            clinicId:33,
             clinicName: "",
-            version: "v1.4",
+            version: "v1.5",
             date: "0000-00-00",
             mode: {
                 prd: "34.80.179.232",
@@ -120,6 +155,8 @@ export default {
             attendance: [],
             //當日紀錄
             record: [],
+            //當日簽到紀錄
+            checkRecord: [],
             //選取時員工資料
             employeeData: {
                 employee_id: 0,
@@ -128,21 +165,11 @@ export default {
                 shift: [],
             },
             //員工打卡紀錄
-            employeeRecord: {
-                on_1st: "",
-                off_1st: "",
-                off_1st_o: "",
-                off_1st_o2: "",
-                on_2nd: "",
-                off_2nd: "",
-                off_2nd_o: "",
-                off_2nd_o2: "",
-                on_3rd: "",
-                off_3rd: "",
-                off_3rd_o: "",
-                off_3rd_o2: "",
-            },
-            isNone: true,
+            employeeRecord: {on_1st: "", on_1st_o: "", on_1st_o2: "", off_1st: "", off_1st_o: "", off_1st_o2: "", off_1st_e2: "", on_2nd: "", on_2nd_o: "", on_2nd_o2: "", off_2nd: "", off_2nd_o: "", off_2nd_o2: "", off_2nd_e2: "", on_3rd: "", on_3rd_o: "", on_3rd_o2: "", off_3rd: "", off_3rd_o: "", off_3rd_o2: "", off_3rd_e2: ""},
+            //員工簽到紀錄
+            employeeCheckRecord: {on_1st: "", off_1st: ""},
+            isOnNone: true,
+            isOffNone: true,
             //欲提交資料的格式
             postData: {
                 employee_id: null,
@@ -154,9 +181,9 @@ export default {
             //拍照參數設定
             webcam: {
                 width: 300,
-                height: 300,
+                height: 250,
                 dest_width: 300,
-                dest_height: 300,
+                dest_height: 250,
                 image_format: "jpeg",
                 jpeg_quality: 90,
                 flip_horiz: true,
@@ -166,6 +193,10 @@ export default {
                     },
                 },
             },
+            nav: {
+                0: true,
+                1: false
+            }
         };
     },
     created() {
@@ -193,6 +224,7 @@ export default {
             this.getEmployeeData(id);
             this.getEmployeeRecord(id);
             this.checkOverTimeBtn(id);
+            this.checkEarlyBtn(id);
             this.$nextTick();
             this.modalToggle()
         },
@@ -301,13 +333,14 @@ export default {
             //獲取該診所所有員工當日打卡紀錄
             axios
                 .get(
-                    `http://${this.mode.prd}/api_v1.1/shift/record?id=${btoa(
+                    `http://${this.mode.prd}/api_v1.1/shift/record/new?id=${btoa(
             this.clinicId + "." + this.date
           )}`
                 )
                 .then((res) => {
                     const data = res.data.data;
-                    this.record = data ?? [];
+                    this.record = data[0] ?? [];
+                    this.checkRecord = data[1] ?? [];
                 })
                 .catch((error) => {
                     alert(error);
@@ -334,7 +367,7 @@ export default {
             }
         },
         getEmployeeRecord(id) {
-            //獲取紀錄
+            //獲取打卡紀錄
             const data = this.record.filter((data) => data.employee_id == id);
             for (let prop in this.employeeRecord) {
                 let _d = data.find((d) => d.type == prop);
@@ -343,6 +376,18 @@ export default {
                 //將 年月日 去除
                 if (_d) {
                     this.employeeRecord[prop].datetime = _d.datetime.slice(-8);
+                }
+            }
+
+            //獲取簽到紀錄
+            const checkData = this.checkRecord.filter((data) => data.employee_id == id);
+            for (let prop in this.employeeCheckRecord) {
+                let _d = checkData.find((d) => d.type == prop);
+                // this.employeeRecord[prop] = _d ? Object.assign({}, this.employeeRecord[prop], _d) : "";
+                this.employeeCheckRecord[prop] = _d ?? "";
+                //將 年月日 去除
+                if (_d) {
+                    this.employeeCheckRecord[prop].datetime = _d.datetime.slice(-8);
                 }
             }
         },
@@ -404,7 +449,7 @@ export default {
                         this.modalToggle();
                         this.$nextTick();
                     } else {
-                        alert("打卡失敗!");
+                        alert(res.data.message);
                     }
                 })
                 .catch((error) => {
@@ -419,7 +464,7 @@ export default {
                 location.reload();
             } else {
                 //加班詢問
-                if (type === "") {
+                if (type === "off") {
                     //詢問是否打卡
                     if (confirm("是否打卡加班?")) {
                         //拍照並且詢問是否要打卡，若無則不執行saveRemote
@@ -482,22 +527,193 @@ export default {
                         this.postData.clinic_id = this.clinicId;
                         this.saveRemote();
                     }
+                } else if(type === "on") {
+                    //詢問是否打卡
+                    if (confirm("是否早到打卡?")) {
+                        //拍照並且詢問是否要打卡，若無則不執行saveRemote
+                        const time = d.Format("yyyy-MM-dd hh:mm:ss");
+                        Webcam.snap(function (dataUri) {
+                            document.getElementById("img").value = dataUri;
+                        });
+
+                        //判斷加班時數
+                        //獲取該員工排班
+                        const shift = this.shift.find((d) => d.employee_id == employee_id);
+                        //獲取可下班的shift
+                        let onShift = this.employeeData.shift.filter(
+                            (d) => d.slice(0, 2) === "on"
+                        );
+                        //獲取未打卡，且可打卡的班別
+                        let shift_data = [];
+                        onShift.forEach((item) => {
+                            if (
+                                this.employeeRecord[item] == "" ||
+                                this.employeeRecord[item + "_o"] == "" ||
+                                this.employeeRecord[item + "_o2"] == ""
+                            ) {
+                                //現在時間減去下班時間
+                                let overTime = Math.floor(
+                                    new Date(
+                                        new Date() -
+                                        new Date(
+                                            this.date + " " +
+                                            shift.data[0].shift[item]
+                                        )
+                                    ).getTime() / 60000
+                                );
+                                if (overTime <  -parseInt(this.attendance.is_before.param1)) {
+                                    shift_data.push({
+                                        type: item,
+                                        time: shift.data[0].shift[item],
+                                        over: (-overTime - (parseInt(this.attendance.is_before.param1) - parseInt(this.attendance.is_before.param2))),
+                                    });
+                                }
+                            }
+                        });
+
+                        let over_time = 0;
+                        shift_data.forEach((item) => {
+                            if (over_time === 0) {
+                                type = item.type + "_o";
+                                over_time = item.over;
+                            } else if (over_time > item.over) {
+                                type = item.type + "_o";
+                                over_time = item.over;
+                            }
+                        });
+
+                        this.postData.employee_id = employee_id;
+                        this.postData.datetime = time;
+                        this.postData.type = type;
+                        this.postData.over_time = over_time;
+                        this.postData.clinic_id = this.clinicId;
+                        this.saveRemote();
+                    }
                 } else {
                     //拍照並且詢問是否要打卡，若無則不執行saveRemote
                     const time = d.Format("yyyy-MM-dd hh:mm:ss");
                     Webcam.snap(function (dataUri) {
                         document.getElementById("img").value = dataUri;
                     });
+
+                    
+                    let overTime = 0;
+                    // 判斷是否早退
+                    if(type.slice(0,3) === "off") {
+                        //有設定要計算早退
+                        if(parseInt(this.attendance.is_early.onORoff) === 1) {
+                            const shift = this.shift.find((d) => d.employee_id == employee_id);
+                            if(shift !== undefined) {
+                                const shift_time = shift.data[0].shift[type];
+                                var date = new Date(`${this.date} ${shift_time}`);
+                                var date2 = new Date();
+                                overTime = -((date2.getHours() - date.getHours()) * 60 + (date2.getMinutes() - date.getMinutes()));
+                                if(overTime > parseInt(this.attendance.is_early.param1)) {
+                                    type = type+"_e2";
+                                    overTime = overTime - parseInt(this.attendance.is_early.param1);
+                                } else {
+                                    overTime = 0;
+                                }
+                            }
+                        }
+                    }
+
+                    // // TODO 判斷是否遲到
+                    // if(type.slice(0,2) === "on") {
+                    //     //有設定要計算早退
+                    //     if(parseInt(this.attendance.is_delay.onORoff) === 1) {
+                    //         const shift = this.shift.find((d) => d.employee_id == employee_id);
+                    //         const shift_time = shift.data[0].shift[type];
+                    //         var date = new Date();
+                    //         var date2 = new Date(`${this.date} ${shift_time}`); 
+                    //         overTime = (date2.getHours() - date.getHours()) * 60 + (date2.getMinutes() - date.getMinutes());
+                    //         if(-overTime > parseInt(this.attendance.is_delay.param1)) {
+                    //             type = type+"_l2";
+                    //         } else {
+                    //             overTime = 0;
+                    //         }
+                    //     }
+                    // }
+                    
                     // if (confirm("是否打卡?")) {
                     //上傳至local server
                     this.postData.employee_id = employee_id;
                     this.postData.datetime = time;
                     this.postData.type = type;
-                    this.postData.over_time = 0;
+                    this.postData.over_time = overTime;
                     this.postData.clinic_id = this.clinicId;
                     this.saveRemote();
                     // }
                 }
+            }
+        },
+        saveCheckRemote() {
+            //提交資料
+            let form = new FormData();
+            ImageHelper.resizeAndRotateImage(
+                this.DataURIToBlob(document.getElementById("img").value),
+                300,
+                function (resizeImageObj) {
+                    document.getElementById("img").value = resizeImageObj;
+                }
+            );
+            form.append(
+                "img",
+                this.DataURIToBlob(document.getElementById("img").value)
+            );
+            form.append("data", JSON.stringify(this.postData));
+            let config = {
+                header: {
+                    "Content-Type": "multipart/form-data",
+                },
+            };
+            //插入遠端server
+            axios
+                .post(
+                    `http://${this.mode.prd}/api_v1.1/shift/record/check/add?id=${btoa(
+            this.clinicId + "." + this.date
+          )}`,
+                    form,
+                    config
+                )
+                .then((res) => {
+                    if (res.data.code === 200) {
+                        this.$toastr.s(
+                            `${this.employeeData.name} 於 ${this.postData.datetime.slice(
+                -8
+              )} 簽到/退完成`
+                        );
+                        this.getShiftRecord();
+                        this.modalToggle();
+                        this.$nextTick();
+                    } else {
+                        alert(res.data.message);
+                    }
+                })
+                .catch((error) => {
+                    alert(error);
+                });
+        },
+        takeCheckSnapshot(employee_id, type = "") {
+            //判斷date是否有落差
+            const d = this.changeTimezone(new Date(), 'Asia/Taipei');
+            if(this.date !== d.Format("yyyy-MM-dd")) {
+                alert("資料重整中，請重新打卡...")
+                location.reload();
+            } else {    
+                //拍照並且詢問是否要打卡，若無則不執行saveRemote
+                const time = d.Format("yyyy-MM-dd hh:mm:ss");
+                Webcam.snap(function (dataUri) {
+                    document.getElementById("img").value = dataUri;
+                });
+                // if (confirm("是否打卡?")) {
+                //上傳至local server
+                this.postData.employee_id = employee_id;
+                this.postData.datetime = time;
+                this.postData.type = type;
+                this.postData.clinic_id = this.clinicId;
+                this.saveCheckRemote();
+                // }
             }
         },
         btnDisabled(type = "") {
@@ -515,7 +731,8 @@ export default {
                         if (
                             this.employeeRecord[type] !== "" ||
                             this.employeeRecord[type + "_o"] !== "" ||
-                            this.employeeRecord[type + "_o2"] !== ""
+                            this.employeeRecord[type + "_o2"] !== "" ||
+                            this.employeeRecord[type + "_e2"] !== ""
                         ) {
                             return true;
                         } else {
@@ -523,7 +740,11 @@ export default {
                         }
                     } else {
                         //判斷type是否有值 on
-                        if (this.employeeRecord[type] !== "") {
+                        if (
+                            this.employeeRecord[type] !== "" ||
+                            this.employeeRecord[type + "_o"] !== "" ||
+                            this.employeeRecord[type + "_o2"] !== ""
+                        ) {
                             return true;
                         } else {
                             return false;
@@ -565,18 +786,160 @@ export default {
                             ).getTime() / 60000
                         );
                         if (overTime > parseInt(this.attendance.is_overtime.param1)) {
-                            // console.log(overTime);
-                            this.isNone = false;
-                            break;
+                            //判斷是否下一班是否已經打上班卡，如果有則不顯示
+                            let num = parseInt(item.slice(4,5));
+                            if(num === 1) {
+                                //當第一班超時未下班前，查看其他班是否上班已打，如果打了就不顯示
+                                //如果後面的班數有打下班也不顯示
+                                if(
+                                    (this.employeeRecord["off_1st"] !== "" || this.employeeRecord["off_1st_o"] !== "" || this.employeeRecord["off_1st_o2"] !== "" || this.employeeRecord["off_1st_e2"] !== "") ||
+                                    (this.employeeRecord["on_2nd"] !== "" || this.employeeRecord["on_2nd_o"] !== "" || this.employeeRecord["on_2nd_o2"] !== "") ||
+                                    (this.employeeRecord["on_3rd"] !== "" || this.employeeRecord["on_3rd_o"] !== "" || this.employeeRecord["on_3rd_o2"] !== "") ||
+                                    (this.employeeRecord["off_2nd"] !== "" || this.employeeRecord["off_2nd_o"] !== "" || this.employeeRecord["off_2nd_o2"] !== "" || this.employeeRecord["off_2nd_e2"] !== "") ||
+                                    (this.employeeRecord["off_3rd"] !== "" || this.employeeRecord["off_3rd_o"] !== "" || this.employeeRecord["off_3rd_o2"] !== "" || this.employeeRecord["off_3rd_e2"] !== "")
+                                ) {
+                                    this.isOffNone = true;
+                                } else {
+                                    this.isOffNone = false;
+                                    break;
+                                }
+                            } else if(num === 2) {
+                                if(
+                                    (this.employeeRecord["off_2nd"] !== "" || this.employeeRecord["off_2nd_o"] !== "" || this.employeeRecord["off_2nd_o2"] !== "" || this.employeeRecord["off_2nd_e2"] !== "") ||
+                                    (this.employeeRecord["on_3rd"] !== "" || this.employeeRecord["on_3rd_o"] !== "" || this.employeeRecord["on_3rd_o2"] !== "") ||
+                                    (this.employeeRecord["off_3rd"] !== "" || this.employeeRecord["off_3rd_o"] !== "" || this.employeeRecord["off_3rd_o2"] !== "" || this.employeeRecord["off_3rd_e2"] !== "")
+                                ) {
+                                    this.isOffNone = true;
+                                } else {
+                                    this.isOffNone = false;
+                                    break;
+                                }
+                            } else if(num === 3) {
+                                if(
+                                    (this.employeeRecord["off_3rd"] !== "" || this.employeeRecord["off_3rd_o"] !== "" || this.employeeRecord["off_3rd_o2"] !== "" || this.employeeRecord["off_3rd_e2"] !== "")
+                                ) {
+                                    this.isOffNone = true;
+                                } else {
+                                    this.isOffNone = false;
+                                    break;
+                                }
+                            }
                         } else {
-                            this.isNone = true;
+                            this.isOffNone = true;
                         }
                     } else {
-                        this.isNone = true;
+                        this.isOffNone = true;
                     }
                 }
             } else {
-                this.isNone = true;
+                this.isOffNone = true;
+            }
+        },
+        //早到按鈕
+        checkEarlyBtn(employee_id) {
+            //確認考勤是有開啟，且有排班
+            if (
+                this.attendance.is_before.onORoff == 1 &&
+                this.employeeData.shift.length !== 0
+            ) {
+                //獲取排班
+                const shift = this.shift.find((d) => d.employee_id == employee_id);
+
+                //獲取可下班的shift
+                let onShift = this.employeeData.shift.filter(
+                    (d) => d.slice(0, 2) === "on"
+                );
+                //獲取未打卡，且可打卡的班別
+                for (let item of onShift) {
+                    if (
+                        this.employeeRecord[item] == "" &&
+                        this.employeeRecord[item + "_o"] == "" &&
+                        this.employeeRecord[item + "_o2"] == ""
+                    ) {
+                        //現在時間減去下班時間
+                        let overTime = Math.floor(
+                            new Date(
+                                new Date() -
+                                new Date(
+                                    this.date + " " + shift.data[0].shift[item]
+                                )
+                            ).getTime() / 60000
+                        );
+                        if (overTime < -parseInt(this.attendance.is_before.param1)) {
+                            //判斷是否下一班是否已經打上班卡，如果有則不顯示
+                            console.log(overTime);
+                            let num = parseInt(item.slice(3, 4));
+                            if(num === 1) {
+                                if(
+                                    (this.employeeRecord["on_1st"] !== "" || this.employeeRecord["on_1st_o"] !== "" || this.employeeRecord["on_1st_o2"] !== "") ||
+                                    (this.employeeRecord["off_1st"] !== "" || this.employeeRecord["off_1st_o"] !== "" || this.employeeRecord["off_1st_o2"] !== "" || this.employeeRecord["off_1st_e2"] !== "") ||
+                                    (this.employeeRecord["on_2nd"] !== "" || this.employeeRecord["on_2nd_o"] !== "" || this.employeeRecord["on_2nd_o2"] !== "") ||
+                                    (this.employeeRecord["off_2nd"] !== "" || this.employeeRecord["off_2nd_o"] !== "" || this.employeeRecord["off_2nd_o2"] !== "" || this.employeeRecord["off_2nd_e2"] !== "") ||
+                                    (this.employeeRecord["on_3rd"] !== "" || this.employeeRecord["on_3rd_o"] !== "" || this.employeeRecord["on_3rd_o2"] !== "") ||
+                                    (this.employeeRecord["off_3rd"] !== "" || this.employeeRecord["off_3rd_o"] !== "" || this.employeeRecord["off_3rd_o2"] !== "" || this.employeeRecord["off_3rd_e2"] !== "")
+                                ) {
+                                    this.isOnNone = true;
+                                    break;
+                                } else {
+                                    console.log(1);
+                                    this.isOnNone = false;
+                                    break;
+                                }
+                            } else if(num === 2) {
+                                //上一班下班必須得打卡，還有其他班上下班不能打卡才顯示
+                                if(
+                                    !(//(this.employeeRecord["on_1st"] !== "" || this.employeeRecord["on_1st_o"] !== "" || this.employeeRecord["on_1st_o2"] !== "") &&
+                                    (this.employeeRecord["off_1st"] !== "" || this.employeeRecord["off_1st_o"] !== "" || this.employeeRecord["off_1st_o2"] !== "" || this.employeeRecord["off_1st_e2"] !== "") &&
+                                    ((this.employeeRecord["on_2nd"] === "" && this.employeeRecord["on_2nd_o"] === "" && this.employeeRecord["on_2nd_o2"] === "") &&
+                                    (this.employeeRecord["off_2nd"] === "" && this.employeeRecord["off_2nd_o"] === "" && this.employeeRecord["off_1st_o2"] === "" && this.employeeRecord["off_2nd_e2"] === "") &&
+                                    (this.employeeRecord["on_3rd"] === "" && this.employeeRecord["on_3rd_o"] === "" && this.employeeRecord["on_3rd_o2"] === "") &&
+                                    (this.employeeRecord["off_3rd"] === "" && this.employeeRecord["off_3rd_o"] === "" && this.employeeRecord["off_3rd_o2"] === "" && this.employeeRecord["off_3rd_e2"] === "")))
+                                ) {
+                                    this.isOnNone = true;
+                                    break;
+                                } else {
+                                    //判斷第一班的overtime是否還小於第一班表定時間
+                                    var time1 = new Date(`${this.date} ${shift.data[0].shift['on_1st']}`);
+                                    var time2 = new Date();
+                                    overTime = -((time2.getHours() - time1.getHours()) * 60 + (time2.getMinutes() - time1.getMinutes()));
+                                    if(overTime > parseInt(this.attendance.is_early.param1)) {
+                                        this.isOnNone = true;
+                                    } else {
+                                        this.isOnNone = false;
+                                    }
+                                    break;
+                                }
+                            } else if(num === 3) {
+                                if(
+                                    !(//(this.employeeRecord["on_2nd"] !== "" || this.employeeRecord["on_2nd_o"] !== "" || this.employeeRecord["on_2nd_o2"] !== "") &&
+                                    (this.employeeRecord["off_2nd"] !== "" || this.employeeRecord["off_2nd_o"] !== "" || this.employeeRecord["off_2nd_o2"] !== "" || this.employeeRecord["off_2nd_e2"] !== "") &&
+                                    ((this.employeeRecord["on_3rd"] === "" && this.employeeRecord["on_3rd_o"] === "" && this.employeeRecord["on_3rd_o2"] === "") &&
+                                    (this.employeeRecord["off_3rd"] === "" && this.employeeRecord["off_3rd_o"] === "" && this.employeeRecord["off_3rd_o2"] === "" && this.employeeRecord["off_3rd_e2"] === "")))
+                                ) {
+                                    this.isOnNone = true;
+                                    break;
+                                } else {
+                                    //判斷第二班的overtime是否還小於第二班表定時間
+                                    var time3 = new Date(`${this.date} ${shift.data[0].shift['on_2nd']}`);
+                                    var time4 = new Date();
+                                    overTime = -((time4.getHours() - time3.getHours()) * 60 + (time4.getMinutes() - time3.getMinutes()));
+                                    if(overTime > parseInt(this.attendance.is_early.param1)) {
+                                        this.isOnNone = true;
+                                    } else {
+                                        this.isOnNone = false;
+                                    }
+                                    break;
+                                }
+                            }
+                        } else {
+                            this.isOnNone = true;
+                        }
+                    } else {
+                        this.isOnNone = true;
+                    }
+                }
+            } else {
+                this.isOnNone = true;
             }
         },
         offBtns(type) {
@@ -587,6 +950,8 @@ export default {
                     return this.employeeRecord[type + "_o"].datetime.substr(0, 5) + "(加)";
                 } else if (this.employeeRecord[type + "_o2"] !== "") {
                     return this.employeeRecord[type + "_o2"].datetime.substr(0, 5) + "(加)";
+                } else if (this.employeeRecord[type + "_e2"] !== "") {
+                    return this.employeeRecord[type + "_e2"].datetime.substr(0, 5) + "(早)";
                 } else {
                     return "下班";
                 }
@@ -596,9 +961,33 @@ export default {
             if (this.employeeRecord.employee_id !== 0) {
                 if (this.employeeRecord[type] !== "") {
                     return this.employeeRecord[type].datetime.substr(0, 5);
+                } else if (this.employeeRecord[type + "_o"] !== "") {
+                    return this.employeeRecord[type + "_o"].datetime.substr(0, 5) + "(加)";
+                } else if (this.employeeRecord[type + "_o2"] !== "") {
+                    return this.employeeRecord[type + "_o2"].datetime.substr(0, 5) + "(加)";
                 } else {
                     return "上班";
                 }
+            }
+        },
+        checkBtns(type) {
+            if (this.employeeCheckRecord.employee_id !== 0) {
+                if (this.employeeCheckRecord[type] !== "") {
+                    return this.employeeCheckRecord[type].datetime.substr(0, 5);
+                } else {
+                    if(type.slice(0, 2) === 'on') {
+                        return "簽到";
+                    } else {
+                        return "簽退";
+                    }
+                }
+            }
+        },
+        checkBtnDisabled(type = "") {
+            if (this.employeeCheckRecord[type] !== "") {
+                return true;
+            } else {
+                return false;
             }
         },
         modalToggle() {
@@ -610,6 +999,14 @@ export default {
                 document.getElementById('mask').style.display = 'none';
                 document.getElementById('windows').style.display = 'none';
                 this.showModal = false;
+            }
+        },
+        tab(index = 0) {
+            this.nav[index] = true;
+            if(index === 0) {
+                this.nav[1] = false;
+            } else {
+                this.nav[0] = false;
             }
         }
     },
@@ -623,6 +1020,9 @@ export default {
             } else {
                 return true;
             }
+        },
+        windowsBtn() {
+            return this.isOnNone && this.isOffNone;
         }
     },
     watch: {
@@ -708,7 +1108,7 @@ body {
 }
 .windows {
   width: 600px;
-  height: 680px;
+  height: 690px;
   background-color: #ffffff;
   opacity: 1;
   margin: 0px auto;
@@ -718,7 +1118,7 @@ body {
   top: 50%;
   left: 50%;
   margin-left: -315px;
-  margin-top: -350px;
+  margin-top: -375px;
 }
 .windows-title{
   background-color: #646DC1;
@@ -781,8 +1181,11 @@ body {
 }
 .windows .work{
   display: flex;
-  height: 220px;
-  padding: 40px 20px 0px;
+  height: 180px;
+  padding: 10px 20px 0;
+}
+.windows .work.check {
+    padding: 10px 200px 0;
 }
 .windows .work .work-1{
   flex:1;
@@ -883,7 +1286,7 @@ body {
   border: 0px;
   border-radius: 45px;
   width: 560px;
-  height: 50px;
+  height: 40px;
   margin: 10px 20px 0px;
   padding-left: 20px;
   font-size: 18px;
@@ -971,7 +1374,7 @@ body {
   background-color: #192A38;
 }
 #my_camera {
-    margin: -50px 0 -50px 0;
+    margin: -25px 0 0 0;
 }
 
 .red.button{
@@ -996,5 +1399,22 @@ body {
     left: 10px;
     color: #eee;
     opacity: 0.5;
+}
+.nav-item {
+    cursor: pointer;
+    width: 100px;
+    text-align: center;
+}
+.nav-pills.custom .nav-link.active {
+    background-color: #3F489C;
+}
+.nav-pills.custom .nav-item:first-child .nav-link {
+    border-radius: 50px 0 0 50px;
+    border: 1px solid #BFBFBF;
+    border-right: 0px;
+}
+.nav-pills.custom .nav-item:last-child .nav-link {
+    border-radius: 0 50px 50px 0;
+    border: 1px solid #BFBFBF;
 }
 </style>
