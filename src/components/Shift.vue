@@ -855,87 +855,32 @@ export default {
                 let onShift = this.employeeData.shift.filter(
                     (d) => d.slice(0, 2) === "on"
                 );
+                //判斷有幾班，分別做判斷
                 //獲取未打卡，且可打卡的班別
-                for (let item of onShift) {
+                if(onShift.length === 1) {
+                    //只有單獨一班
                     if (
-                        this.employeeRecord[item] == "" &&
-                        this.employeeRecord[item + "_o"] == "" &&
-                        this.employeeRecord[item + "_o2"] == ""
+                        this.employeeRecord[onShift[0]] == "" &&
+                        this.employeeRecord[onShift[0] + "_o"] == "" &&
+                        this.employeeRecord[onShift[0] + "_o2"] == ""
                     ) {
                         //現在時間減去下班時間
                         let overTime = Math.floor(
                             new Date(
                                 new Date() -
                                 new Date(
-                                    this.date + " " + shift.data[0].shift[item]
+                                    this.date + " " + shift.data[0].shift[onShift[0]]
                                 )
                             ).getTime() / 60000
                         );
                         if (overTime < -parseInt(this.attendance.is_before.param1)) {
                             //判斷是否下一班是否已經打上班卡，如果有則不顯示
-                            console.log(overTime);
-                            let num = parseInt(item.slice(3, 4));
-                            if(num === 1) {
-                                if(
-                                    (this.employeeRecord["on_1st"] !== "" || this.employeeRecord["on_1st_o"] !== "" || this.employeeRecord["on_1st_o2"] !== "") ||
-                                    (this.employeeRecord["off_1st"] !== "" || this.employeeRecord["off_1st_o"] !== "" || this.employeeRecord["off_1st_o2"] !== "" || this.employeeRecord["off_1st_e2"] !== "") ||
-                                    (this.employeeRecord["on_2nd"] !== "" || this.employeeRecord["on_2nd_o"] !== "" || this.employeeRecord["on_2nd_o2"] !== "") ||
-                                    (this.employeeRecord["off_2nd"] !== "" || this.employeeRecord["off_2nd_o"] !== "" || this.employeeRecord["off_2nd_o2"] !== "" || this.employeeRecord["off_2nd_e2"] !== "") ||
-                                    (this.employeeRecord["on_3rd"] !== "" || this.employeeRecord["on_3rd_o"] !== "" || this.employeeRecord["on_3rd_o2"] !== "") ||
-                                    (this.employeeRecord["off_3rd"] !== "" || this.employeeRecord["off_3rd_o"] !== "" || this.employeeRecord["off_3rd_o2"] !== "" || this.employeeRecord["off_3rd_e2"] !== "")
-                                ) {
-                                    this.isOnNone = true;
-                                    break;
-                                } else {
-                                    console.log(1);
-                                    this.isOnNone = false;
-                                    break;
-                                }
-                            } else if(num === 2) {
-                                //上一班下班必須得打卡，還有其他班上下班不能打卡才顯示
-                                if(
-                                    !(//(this.employeeRecord["on_1st"] !== "" || this.employeeRecord["on_1st_o"] !== "" || this.employeeRecord["on_1st_o2"] !== "") &&
-                                    (this.employeeRecord["off_1st"] !== "" || this.employeeRecord["off_1st_o"] !== "" || this.employeeRecord["off_1st_o2"] !== "" || this.employeeRecord["off_1st_e2"] !== "") &&
-                                    ((this.employeeRecord["on_2nd"] === "" && this.employeeRecord["on_2nd_o"] === "" && this.employeeRecord["on_2nd_o2"] === "") &&
-                                    (this.employeeRecord["off_2nd"] === "" && this.employeeRecord["off_2nd_o"] === "" && this.employeeRecord["off_1st_o2"] === "" && this.employeeRecord["off_2nd_e2"] === "") &&
-                                    (this.employeeRecord["on_3rd"] === "" && this.employeeRecord["on_3rd_o"] === "" && this.employeeRecord["on_3rd_o2"] === "") &&
-                                    (this.employeeRecord["off_3rd"] === "" && this.employeeRecord["off_3rd_o"] === "" && this.employeeRecord["off_3rd_o2"] === "" && this.employeeRecord["off_3rd_e2"] === "")))
-                                ) {
-                                    this.isOnNone = true;
-                                    break;
-                                } else {
-                                    //判斷第一班的overtime是否還小於第一班表定時間
-                                    var time1 = new Date(`${this.date} ${shift.data[0].shift['on_1st']}`);
-                                    var time2 = new Date();
-                                    overTime = -((time2.getHours() - time1.getHours()) * 60 + (time2.getMinutes() - time1.getMinutes()));
-                                    if(overTime > parseInt(this.attendance.is_early.param1)) {
-                                        this.isOnNone = true;
-                                    } else {
-                                        this.isOnNone = false;
-                                    }
-                                    break;
-                                }
-                            } else if(num === 3) {
-                                if(
-                                    !(//(this.employeeRecord["on_2nd"] !== "" || this.employeeRecord["on_2nd_o"] !== "" || this.employeeRecord["on_2nd_o2"] !== "") &&
-                                    (this.employeeRecord["off_2nd"] !== "" || this.employeeRecord["off_2nd_o"] !== "" || this.employeeRecord["off_2nd_o2"] !== "" || this.employeeRecord["off_2nd_e2"] !== "") &&
-                                    ((this.employeeRecord["on_3rd"] === "" && this.employeeRecord["on_3rd_o"] === "" && this.employeeRecord["on_3rd_o2"] === "") &&
-                                    (this.employeeRecord["off_3rd"] === "" && this.employeeRecord["off_3rd_o"] === "" && this.employeeRecord["off_3rd_o2"] === "" && this.employeeRecord["off_3rd_e2"] === "")))
-                                ) {
-                                    this.isOnNone = true;
-                                    break;
-                                } else {
-                                    //判斷第二班的overtime是否還小於第二班表定時間
-                                    var time3 = new Date(`${this.date} ${shift.data[0].shift['on_2nd']}`);
-                                    var time4 = new Date();
-                                    overTime = -((time4.getHours() - time3.getHours()) * 60 + (time4.getMinutes() - time3.getMinutes()));
-                                    if(overTime > parseInt(this.attendance.is_early.param1)) {
-                                        this.isOnNone = true;
-                                    } else {
-                                        this.isOnNone = false;
-                                    }
-                                    break;
-                                }
+                            if(
+                                (this.employeeRecord[`${onShift[0]}`] !== "" || this.employeeRecord[`${onShift[0]}_o`] !== "" || this.employeeRecord[`${onShift[0]}_o2`] !== "")
+                            ) {
+                                this.isOnNone = true;
+                            } else {
+                                this.isOnNone = false;
                             }
                         } else {
                             this.isOnNone = true;
@@ -943,7 +888,210 @@ export default {
                     } else {
                         this.isOnNone = true;
                     }
+                } else if(onShift.length === 2 && onShift.find(d => d.match('2nd')) === undefined) {
+                    //排列方式1 12 123
+                    for (let item of onShift) {
+                        if (
+                            this.employeeRecord[item] == "" &&
+                            this.employeeRecord[item + "_o"] == "" &&
+                            this.employeeRecord[item + "_o2"] == ""
+                        ) {
+                            //現在時間減去下班時間
+                            let overTime = Math.floor(
+                                new Date(
+                                    new Date() -
+                                    new Date(
+                                        this.date + " " + shift.data[0].shift[item]
+                                    )
+                                ).getTime() / 60000
+                            );
+                            if (overTime < -parseInt(this.attendance.is_before.param1)) {
+                                //判斷是否下一班是否已經打上班卡，如果有則不顯示
+                                console.log(overTime);
+                                let num = parseInt(item.slice(3, 4));
+                                if(num === 1) {
+                                    if(
+                                        (this.employeeRecord["on_1st"] !== "" || this.employeeRecord["on_1st_o"] !== "" || this.employeeRecord["on_1st_o2"] !== "") ||
+                                        (this.employeeRecord["off_1st"] !== "" || this.employeeRecord["off_1st_o"] !== "" || this.employeeRecord["off_1st_o2"] !== "" || this.employeeRecord["off_1st_e2"] !== "") ||
+                                        (this.employeeRecord["on_3rd"] !== "" || this.employeeRecord["on_3rd_o"] !== "" || this.employeeRecord["on_3rd_o2"] !== "") ||
+                                        (this.employeeRecord["off_3rd"] !== "" || this.employeeRecord["off_3rd_o"] !== "" || this.employeeRecord["off_3rd_o2"] !== "" || this.employeeRecord["off_3rd_e2"] !== "")
+                                    ) {
+                                        this.isOnNone = true;
+                                        break;
+                                    } else {
+                                        console.log(1);
+                                        this.isOnNone = false;
+                                        break;
+                                    }
+                                } else if(num === 3) {
+                                    if(
+                                        !(//(this.employeeRecord["on_1st"] !== "" || this.employeeRecord["on_1st_o"] !== "" || this.employeeRecord["on_1st_o2"] !== "") &&
+                                        (this.employeeRecord["off_1st"] !== "" || this.employeeRecord["off_1st_o"] !== "" || this.employeeRecord["off_1st_o2"] !== "" || this.employeeRecord["off_1st_e2"] !== "") &&
+                                        ((this.employeeRecord["on_3rd"] === "" && this.employeeRecord["on_3rd_o"] === "" && this.employeeRecord["on_3rd_o2"] === "") &&
+                                        (this.employeeRecord["off_3rd"] === "" && this.employeeRecord["off_3rd_o"] === "" && this.employeeRecord["off_3rd_o2"] === "" && this.employeeRecord["off_3rd_e2"] === "")))
+                                    ) {
+                                        this.isOnNone = true;
+                                        break;
+                                    } else {
+                                        this.isOnNone = false;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                this.isOnNone = true;
+                            }
+                        } else {
+                            this.isOnNone = true;
+                        }
+                    }
+                } else if(onShift.length === 2 && onShift.find(d => d.match('1st')) === undefined) {
+                    //排列方式1 12 123
+                    for (let item of onShift) {
+                        if (
+                            this.employeeRecord[item] == "" &&
+                            this.employeeRecord[item + "_o"] == "" &&
+                            this.employeeRecord[item + "_o2"] == ""
+                        ) {
+                            //現在時間減去下班時間
+                            let overTime = Math.floor(
+                                new Date(
+                                    new Date() -
+                                    new Date(
+                                        this.date + " " + shift.data[0].shift[item]
+                                    )
+                                ).getTime() / 60000
+                            );
+                            if (overTime < -parseInt(this.attendance.is_before.param1)) {
+                                //判斷是否下一班是否已經打上班卡，如果有則不顯示
+                                console.log(overTime);
+                                let num = parseInt(item.slice(3, 4));
+                                if(num === 2) {
+                                    if(
+                                        (this.employeeRecord["on_2nd"] !== "" || this.employeeRecord["on_2nd_o"] !== "" || this.employeeRecord["on_2nd_o2"] !== "") ||
+                                        (this.employeeRecord["off_2nd"] !== "" || this.employeeRecord["off_2nd_o"] !== "" || this.employeeRecord["off_2nd_o2"] !== "" || this.employeeRecord["off_2nd_e2"] !== "") ||
+                                        (this.employeeRecord["on_3rd"] !== "" || this.employeeRecord["on_3rd_o"] !== "" || this.employeeRecord["on_3rd_o2"] !== "") ||
+                                        (this.employeeRecord["off_3rd"] !== "" || this.employeeRecord["off_3rd_o"] !== "" || this.employeeRecord["off_3rd_o2"] !== "" || this.employeeRecord["off_3rd_e2"] !== "")
+                                    ) {
+                                        this.isOnNone = true;
+                                        break;
+                                    } else {
+                                        console.log(1);
+                                        this.isOnNone = false;
+                                        break;
+                                    }
+                                } else if(num === 3) {
+                                    if(
+                                        !(//(this.employeeRecord["on_2nd"] !== "" || this.employeeRecord["on_2nd_o"] !== "" || this.employeeRecord["on_2nd_o2"] !== "") &&
+                                        (this.employeeRecord["off_2nd"] !== "" || this.employeeRecord["off_2nd_o"] !== "" || this.employeeRecord["off_2nd_o2"] !== "" || this.employeeRecord["off_2nd_e2"] !== "") &&
+                                        ((this.employeeRecord["on_3rd"] === "" && this.employeeRecord["on_3rd_o"] === "" && this.employeeRecord["on_3rd_o2"] === "") &&
+                                        (this.employeeRecord["off_3rd"] === "" && this.employeeRecord["off_3rd_o"] === "" && this.employeeRecord["off_3rd_o2"] === "" && this.employeeRecord["off_3rd_e2"] === "")))
+                                    ) {
+                                        this.isOnNone = true;
+                                        break;
+                                    } else {
+                                        this.isOnNone = false;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                this.isOnNone = true;
+                            }
+                        } else {
+                            this.isOnNone = true;
+                        }
+                    }
+                } else {
+                    //排列方式1 12 123
+                    for (let item of onShift) {
+                        if (
+                            this.employeeRecord[item] == "" &&
+                            this.employeeRecord[item + "_o"] == "" &&
+                            this.employeeRecord[item + "_o2"] == ""
+                        ) {
+                            //現在時間減去下班時間
+                            let overTime = Math.floor(
+                                new Date(
+                                    new Date() -
+                                    new Date(
+                                        this.date + " " + shift.data[0].shift[item]
+                                    )
+                                ).getTime() / 60000
+                            );
+                            if (overTime < -parseInt(this.attendance.is_before.param1)) {
+                                //判斷是否下一班是否已經打上班卡，如果有則不顯示
+                                console.log(overTime);
+                                let num = parseInt(item.slice(3, 4));
+                                if(num === 1) {
+                                    if(
+                                        (this.employeeRecord["on_1st"] !== "" || this.employeeRecord["on_1st_o"] !== "" || this.employeeRecord["on_1st_o2"] !== "") ||
+                                        (this.employeeRecord["off_1st"] !== "" || this.employeeRecord["off_1st_o"] !== "" || this.employeeRecord["off_1st_o2"] !== "" || this.employeeRecord["off_1st_e2"] !== "") ||
+                                        (this.employeeRecord["on_2nd"] !== "" || this.employeeRecord["on_2nd_o"] !== "" || this.employeeRecord["on_2nd_o2"] !== "") ||
+                                        (this.employeeRecord["off_2nd"] !== "" || this.employeeRecord["off_2nd_o"] !== "" || this.employeeRecord["off_2nd_o2"] !== "" || this.employeeRecord["off_2nd_e2"] !== "") ||
+                                        (this.employeeRecord["on_3rd"] !== "" || this.employeeRecord["on_3rd_o"] !== "" || this.employeeRecord["on_3rd_o2"] !== "") ||
+                                        (this.employeeRecord["off_3rd"] !== "" || this.employeeRecord["off_3rd_o"] !== "" || this.employeeRecord["off_3rd_o2"] !== "" || this.employeeRecord["off_3rd_e2"] !== "")
+                                    ) {
+                                        this.isOnNone = true;
+                                        break;
+                                    } else {
+                                        console.log(1);
+                                        this.isOnNone = false;
+                                        break;
+                                    }
+                                } else if(num === 2) {
+                                    //上一班下班必須得打卡，還有其他班上下班不能打卡才顯示
+                                    if(
+                                        !(//(this.employeeRecord["on_1st"] !== "" || this.employeeRecord["on_1st_o"] !== "" || this.employeeRecord["on_1st_o2"] !== "") &&
+                                        (this.employeeRecord["off_1st"] !== "" || this.employeeRecord["off_1st_o"] !== "" || this.employeeRecord["off_1st_o2"] !== "" || this.employeeRecord["off_1st_e2"] !== "") &&
+                                        ((this.employeeRecord["on_2nd"] === "" && this.employeeRecord["on_2nd_o"] === "" && this.employeeRecord["on_2nd_o2"] === "") &&
+                                        (this.employeeRecord["off_2nd"] === "" && this.employeeRecord["off_2nd_o"] === "" && this.employeeRecord["off_1st_o2"] === "" && this.employeeRecord["off_2nd_e2"] === "") &&
+                                        (this.employeeRecord["on_3rd"] === "" && this.employeeRecord["on_3rd_o"] === "" && this.employeeRecord["on_3rd_o2"] === "") &&
+                                        (this.employeeRecord["off_3rd"] === "" && this.employeeRecord["off_3rd_o"] === "" && this.employeeRecord["off_3rd_o2"] === "" && this.employeeRecord["off_3rd_e2"] === "")))
+                                    ) {
+                                        this.isOnNone = true;
+                                        break;
+                                    } else {
+                                        //判斷第一班的overtime是否還小於第一班表定時間
+                                        var time1 = new Date(`${this.date} ${shift.data[0].shift['on_1st']}`);
+                                        var time2 = new Date();
+                                        overTime = -((time2.getHours() - time1.getHours()) * 60 + (time2.getMinutes() - time1.getMinutes()));
+                                        if(overTime > parseInt(this.attendance.is_early.param1)) {
+                                            this.isOnNone = true;
+                                        } else {
+                                            this.isOnNone = false;
+                                        }
+                                        break;
+                                    }
+                                } else if(num === 3) {
+                                    if(
+                                        !(//(this.employeeRecord["on_2nd"] !== "" || this.employeeRecord["on_2nd_o"] !== "" || this.employeeRecord["on_2nd_o2"] !== "") &&
+                                        (this.employeeRecord["off_2nd"] !== "" || this.employeeRecord["off_2nd_o"] !== "" || this.employeeRecord["off_2nd_o2"] !== "" || this.employeeRecord["off_2nd_e2"] !== "") &&
+                                        ((this.employeeRecord["on_3rd"] === "" && this.employeeRecord["on_3rd_o"] === "" && this.employeeRecord["on_3rd_o2"] === "") &&
+                                        (this.employeeRecord["off_3rd"] === "" && this.employeeRecord["off_3rd_o"] === "" && this.employeeRecord["off_3rd_o2"] === "" && this.employeeRecord["off_3rd_e2"] === "")))
+                                    ) {
+                                        this.isOnNone = true;
+                                        break;
+                                    } else {
+                                        //判斷第二班的overtime是否還小於第二班表定時間
+                                        var time3 = new Date(`${this.date} ${shift.data[0].shift['on_2nd']}`);
+                                        var time4 = new Date();
+                                        overTime = -((time4.getHours() - time3.getHours()) * 60 + (time4.getMinutes() - time3.getMinutes()));
+                                        if(overTime > parseInt(this.attendance.is_early.param1)) {
+                                            this.isOnNone = true;
+                                        } else {
+                                            this.isOnNone = false;
+                                        }
+                                        break;
+                                    }
+                                }
+                            } else {
+                                this.isOnNone = true;
+                            }
+                        } else {
+                            this.isOnNone = true;
+                        }
+                    }
                 }
+                
             } else {
                 this.isOnNone = true;
             }
