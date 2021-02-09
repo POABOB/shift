@@ -355,11 +355,17 @@ export default {
             //休假歸類為無排班
             if (_shift !== undefined && _shift.data[0].shift.shift_id !== 0) {
                 this.employeeData.shift_name = _shift.data[0].shift.shift_name;
+                console.log(_shift.data[0].shift);
                 for (let prop in _shift.data[0].shift) {
+                    const timeFormat = /^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/
                     if (prop.slice(0, 3) === "off") {
-                        this.employeeData.shift.push(prop);
+                        if(_shift.data[0].shift[prop].match(timeFormat) !== null) {
+                            this.employeeData.shift.push(prop);
+                        }
                     } else if (prop.slice(0, 2) === "on") {
-                        this.employeeData.shift.push(prop);
+                        if(_shift.data[0].shift[prop].match(timeFormat)  !== null) {
+                            this.employeeData.shift.push(prop);
+                        }
                     }
                 }
             } else {
