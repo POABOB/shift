@@ -21,7 +21,7 @@ module.exports = {
         proxy: null,
         disableHostCheck: true,
     },
-    configureWebpack: {
-    plugins: [new BundleAnalyzerPlugin()]
-    }
+    // configureWebpack: {
+    // plugins: [new BundleAnalyzerPlugin()]
+    // }
 };

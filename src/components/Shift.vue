@@ -156,7 +156,7 @@ export default {
     },
     data() {
         return {
-            clinicId:33,
+            clinicId:37,
             clinicName: "",
             version: "v1.6",
             date: "0000-00-00",
