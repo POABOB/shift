@@ -1,3 +1,4 @@
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 module.exports = {
     publicPath: process.env.NODE_ENV === 'production'
         ? './'
@@ -19,5 +20,8 @@ module.exports = {
         hotOnly: false,
         proxy: null,
         disableHostCheck: true,
+    },
+    configureWebpack: {
+    plugins: [new BundleAnalyzerPlugin()]
     }
 };

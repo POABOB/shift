@@ -6,6 +6,9 @@
             <div class="row">
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 sidebar">
                     <span class="version" v-text="version"></span>
+                    <div class="announce" @click="$refs.announce.openModal()" v-show="announce.valid">
+                        <span>{{ (announce.start_at.substr(0,10)) }} {{ announce.title }}</span>
+                    </div>
                     <div class="time" id="datetime"></div>
                     <div class="title">
                         <h4 v-text="clinicName"></h4>
@@ -59,33 +62,33 @@
                         <div class="work-1">
                             <div class="work-1-title">第一班</div>
                             <div class="start" :class="{ disabled: btnDisabled('on_1st') }" @click="takeSnapshot(employeeData.employee_id, 'on_1st')">
-                                <img src="@/assets/images/start.png" class="icon">
+                                <img width="25" height="25" src="@/assets/images/start.png" class="icon">
                                 <h5 v-text="onBtns('on_1st')"></h5>
                             </div>
                             <div class="off" :class="{ disabled: btnDisabled('off_1st') }" @click="takeSnapshot(employeeData.employee_id, 'off_1st')">
-                                <img src="@/assets/images/off.png" class="icon">
+                                <img width="25" height="25" src="@/assets/images/off.png" class="icon">
                                 <h5 v-text="offBtns('off_1st')"></h5>
                             </div>
                         </div>
                         <div class="work-2">
                             <div class="work-2-title">第二班</div>
                             <div class="start" :class="{ disabled: btnDisabled('on_2nd') }" @click="takeSnapshot(employeeData.employee_id, 'on_2nd')">
-                                <img src="@/assets/images/start.png" class="icon">
+                                <img width="25" height="25" src="@/assets/images/start.png" class="icon">
                                 <h5 v-text="onBtns('on_2nd')"></h5>
                             </div>
                             <div class="off" :class="{ disabled: btnDisabled('off_2nd') }" @click="takeSnapshot(employeeData.employee_id, 'off_2nd')">
-                                <img src="@/assets/images/off.png" class="icon">
+                                <img width="25" height="25" src="@/assets/images/off.png" class="icon">
                                 <h5 v-text="offBtns('off_2nd')"></h5>
                             </div>
                         </div>
                         <div class="work-3">
                             <div class="work-3-title">第三班</div>
                             <div class="start" :class="{ disabled: btnDisabled('on_3rd') }" @click="takeSnapshot(employeeData.employee_id, 'on_3rd')">
-                                <img src="@/assets/images/start.png" class="icon">
+                                <img width="25" height="25" src="@/assets/images/start.png" class="icon">
                                 <h5 v-text="onBtns('on_3rd')"></h5>
                             </div>
                             <div class="off" :class="{ disabled: btnDisabled('off_3rd') }" @click="takeSnapshot(employeeData.employee_id, 'off_3rd')">
-                                <img src="@/assets/images/off.png" class="icon">
+                                <img width="25" height="25" src="@/assets/images/off.png" class="icon">
                                 <h5 v-text="offBtns('off_3rd')"></h5>
                             </div>
                         </div>
@@ -103,11 +106,11 @@
                         <div class="work-1">
                             <div class="work-1-title">自由打卡</div>
                             <div class="start" :class="{ disabled: checkBtnDisabled('on_1st') }" @click="takeCheckSnapshot(employeeData.employee_id, 'on_1st')">
-                                <img src="@/assets/images/start.png" class="icon">
+                                <img width="25" height="25" src="@/assets/images/start.png" class="icon">
                                 <h5 v-text="checkBtns('on_1st')"></h5>
                             </div>
                             <div class="off" :class="{ disabled: checkBtnDisabled('off_1st') }" @click="takeCheckSnapshot(employeeData.employee_id, 'off_1st')">
-                                <img src="@/assets/images/off.png" class="icon">
+                                <img width="25" height="25" src="@/assets/images/off.png" class="icon">
                                 <h5 v-text="checkBtns('off_1st')"></h5>
                             </div>
                         </div>
@@ -115,12 +118,25 @@
                     <input type="button" value="✕  關閉" class="button" @click="modalToggle()" />
                 </div>
             </div>
-
-            
-            
-            
         </div>
         <!-- modal end -->
+        <!-- component modal start -->
+        <modal ref="announce">
+            <template v-slot:header>
+                <h2 v-text="announce.title"></h2>
+            </template>
+
+            <template v-slot:body>
+                <div v-html="announce.content"></div>
+            </template>
+
+            <template v-slot:footer>
+                <div class="d-flex justify-content-center">
+                    <button class="btn btn-secondary" @click="$refs.announce.closeModal()">關閉</button>
+                </div>
+            </template>
+        </modal>
+        <!-- component modal end -->
     </div>
 </div>
 </template>
@@ -129,22 +145,25 @@
 import axios from "axios";
 import ImageHelper from "../utils/imghelper";
 import Webcam from "webcamjs";
-require('date-time-format-timezone'); 
+import Modal from "./Modal.vue";
+// require('date-time-format-timezone'); 
 
 export default {
     title: "打卡排班系統",
     name: "Shift",
+    components : {
+        Modal
+    },
     data() {
         return {
             clinicId:33,
             clinicName: "",
-            version: "v1.5",
+            version: "v1.6",
             date: "0000-00-00",
             mode: {
                 prd: "34.80.179.232",
                 dev: "localhost",
             },
-            showModal: false,
             //員工列
             employee: [],
             employee_in_shift: [],
@@ -182,10 +201,10 @@ export default {
             webcam: {
                 width: 300,
                 height: 250,
-                dest_width: 300,
-                dest_height: 250,
+                dest_width: 100,
+                dest_height: 83.34,
                 image_format: "jpeg",
-                jpeg_quality: 90,
+                jpeg_quality: 70,
                 flip_horiz: true,
                 mandatory: {
                     facingMode: {
@@ -193,9 +212,18 @@ export default {
                     },
                 },
             },
+            showModal: false,
             nav: {
                 0: true,
                 1: false
+            },
+            loading: false,
+            announce: {
+                valid: false,
+                title: '',
+                start_at: '0000-00-00',
+                end_at: '0000-00-00',
+                content: ''
             }
         };
     },
@@ -324,6 +352,14 @@ export default {
                         this.employee = [];
                         alert("尚未新增員工!");
                     }
+                    
+                    if (data[4] !== null) {
+                        this.announce.valid = true;
+                        this.announce.title = data[4].title;
+                        this.announce.start_at = data[4].start_at;
+                        this.announce.end_at = data[4].end_at;
+                        this.announce.content = data[4].content;
+                    }
                 })
                 .catch((error) => {
                     alert(error);
@@ -416,51 +452,58 @@ export default {
             });
         },
         saveRemote() {
-            //提交資料
-            let form = new FormData();
-            ImageHelper.resizeAndRotateImage(
-                this.DataURIToBlob(document.getElementById("img").value),
-                300,
-                function (resizeImageObj) {
-                    document.getElementById("img").value = resizeImageObj;
-                }
-            );
-            form.append(
-                "img",
-                this.DataURIToBlob(document.getElementById("img").value)
-            );
-            form.append("data", JSON.stringify(this.postData));
-            let config = {
-                header: {
-                    "Content-Type": "multipart/form-data",
-                },
-            };
-            //插入遠端server
-            axios
-                .post(
-                    `http://${this.mode.prd}/api_v1.1/shift/record/add?id=${btoa(
-            this.clinicId + "." + this.date
-          )}`,
-                    form,
-                    config
-                )
-                .then((res) => {
-                    if (res.data.code === 200) {
-                        this.$toastr.s(
-                            `${this.employeeData.name} 於 ${this.postData.datetime.slice(
-                -8
-              )} 打卡完成`
-                        );
-                        this.getShiftRecord();
-                        this.modalToggle();
-                        this.$nextTick();
-                    } else {
-                        alert(res.data.message);
+            if(this.loading === true) {
+                alert("資料提交中，請稍後再試...");
+            } else {
+                 //提交資料
+                let form = new FormData();
+                ImageHelper.resizeAndRotateImage(
+                    this.DataURIToBlob(document.getElementById("img").value),
+                    300,
+                    function (resizeImageObj) {
+                        document.getElementById("img").value = resizeImageObj;
                     }
-                })
-                .catch((error) => {
-                    alert(error);
-                });
+                );
+                form.append(
+                    "img",
+                    this.DataURIToBlob(document.getElementById("img").value)
+                );
+                form.append("data", JSON.stringify(this.postData));
+                let config = {
+                    header: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                };
+                this.loading = true;
+                //插入遠端server
+                axios
+                    .post(
+                        `http://${this.mode.prd}/api_v1.1/shift/record/add?id=${btoa(
+                this.clinicId + "." + this.date
+            )}`,
+                        form,
+                        config
+                    )
+                    .then((res) => {
+                        if (res.data.code === 200) {
+                            this.$toastr.s(
+                                `${this.employeeData.name} 於 ${this.postData.datetime.slice(
+                    -8
+                )} 打卡完成`
+                            );
+                            this.getShiftRecord();
+                            this.modalToggle();
+                            this.$nextTick();
+                        } else {
+                            alert(res.data.message);
+                        }
+                        this.loading = false;
+                    })
+                    .catch((error) => {
+                        this.loading = false;
+                        alert(error);
+                    });
+            }
         },
         takeSnapshot(employee_id, type = "") {
             //判斷date是否有落差
@@ -596,6 +639,47 @@ export default {
                         this.saveRemote();
                     }
                 } else {
+                    //判斷之前班別是否有打卡完整，沒有的話出現提示
+                    //如果employeeData.shift長度>=4，代表有兩班以上
+                    if(type.slice(-3) !== "1st") {
+                        if(this.employeeData.shift.length >= 4) {
+                            if (this.employeeData.shift.includes('on_1st') && this.employeeData.shift.includes('off_1st')) {
+                                if (
+                                    !((this.employeeRecord['off_1st'] !== "" ||
+                                    this.employeeRecord['off_1st_o'] !== "" ||
+                                    this.employeeRecord['off_1st_o2'] !== "" ||
+                                    this.employeeRecord['off_1st_e2'] !== "") &&
+                                    (this.employeeRecord['on_1st'] !== "" ||
+                                    this.employeeRecord['on_1st_o'] !== "" ||
+                                    this.employeeRecord['on_1st_o2'] !== ""))
+                                ) {
+                                    if(!confirm('第一班打卡尚未齊全，是否要打卡?')) {
+                                        return;
+                                    }
+                                }
+                            }
+                            
+                            if(type.slice(-3) === '3rd') {
+                                if (this.employeeData.shift.includes('on_2nd') && this.employeeData.shift.includes('off_2nd')) {
+                                    if (
+                                        !((this.employeeRecord['off_2nd'] !== "" ||
+                                        this.employeeRecord['off_2nd_o'] !== "" ||
+                                        this.employeeRecord['off_2nd_o2'] !== "" ||
+                                        this.employeeRecord['off_2nd_e2'] !== "") &&
+                                        (this.employeeRecord['on_2nd'] !== "" ||
+                                        this.employeeRecord['on_2nd_o'] !== "" ||
+                                        this.employeeRecord['on_2nd_o2'] !== ""))
+                                    ) {
+                                        if(!confirm('第二班打卡尚未齊全，是否要打卡?')) {
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+
                     //拍照並且詢問是否要打卡，若無則不執行saveRemote
                     const time = d.Format("yyyy-MM-dd hh:mm:ss");
                     Webcam.snap(function (dataUri) {
@@ -654,51 +738,58 @@ export default {
             }
         },
         saveCheckRemote() {
-            //提交資料
-            let form = new FormData();
-            ImageHelper.resizeAndRotateImage(
-                this.DataURIToBlob(document.getElementById("img").value),
-                300,
-                function (resizeImageObj) {
-                    document.getElementById("img").value = resizeImageObj;
-                }
-            );
-            form.append(
-                "img",
-                this.DataURIToBlob(document.getElementById("img").value)
-            );
-            form.append("data", JSON.stringify(this.postData));
-            let config = {
-                header: {
-                    "Content-Type": "multipart/form-data",
-                },
-            };
-            //插入遠端server
-            axios
-                .post(
-                    `http://${this.mode.prd}/api_v1.1/shift/record/check/add?id=${btoa(
-            this.clinicId + "." + this.date
-          )}`,
-                    form,
-                    config
-                )
-                .then((res) => {
-                    if (res.data.code === 200) {
-                        this.$toastr.s(
-                            `${this.employeeData.name} 於 ${this.postData.datetime.slice(
-                -8
-              )} 簽到/退完成`
-                        );
-                        this.getShiftRecord();
-                        this.modalToggle();
-                        this.$nextTick();
-                    } else {
-                        alert(res.data.message);
+            if(this.loading === true) {
+                alert("資料提交中，請稍後再試...");
+            } else {
+                //提交資料
+                let form = new FormData();
+                ImageHelper.resizeAndRotateImage(
+                    this.DataURIToBlob(document.getElementById("img").value),
+                    300,
+                    function (resizeImageObj) {
+                        document.getElementById("img").value = resizeImageObj;
                     }
-                })
-                .catch((error) => {
-                    alert(error);
-                });
+                );
+                form.append(
+                    "img",
+                    this.DataURIToBlob(document.getElementById("img").value)
+                );
+                form.append("data", JSON.stringify(this.postData));
+                let config = {
+                    header: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                };
+                this.loading = true;
+                //插入遠端server
+                axios
+                    .post(
+                        `http://${this.mode.prd}/api_v1.1/shift/record/check/add?id=${btoa(
+                this.clinicId + "." + this.date
+            )}`,
+                        form,
+                        config
+                    )
+                    .then((res) => {
+                        if (res.data.code === 200) {
+                            this.$toastr.s(
+                                `${this.employeeData.name} 於 ${this.postData.datetime.slice(
+                    -8
+                )} 簽到/退完成`
+                            );
+                            this.getShiftRecord();
+                            this.modalToggle();
+                            this.$nextTick();
+                        } else {
+                            alert(res.data.message);
+                        }
+                        this.loading = false;
+                    })
+                    .catch((error) => {
+                        this.loading = false;
+                        alert(error);
+                    });
+            }
         },
         takeCheckSnapshot(employee_id, type = "") {
             //判斷date是否有落差
@@ -1210,12 +1301,24 @@ body {
   height: 100vh;
   background:linear-gradient(315deg, #787FB9 , #A8ACD2 );
   text-align: center;
+  padding: 10% 0 0;
 }
 .sidebar img{
   width: 95%;
 }
+.sidebar .announce{
+    cursor: pointer;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 3px 10px;
+    width: fit-content;
+    margin: 0 auto;
+    overflow : hidden;
+    text-overflow : ellipsis;
+    white-space : nowrap;
+    width: 100%;
+}
 .sidebar .time{
-  margin-top: 20%;
   color: #fff;
 }
 .sidebar .title{
@@ -1570,5 +1673,25 @@ body {
 .nav-pills.custom .nav-item:last-child .nav-link {
     border-radius: 0 50px 50px 0;
     border: 1px solid #BFBFBF;
+}
+.overflow-hidden {
+  overflow: hidden;
+}
+figure.media > div > div {
+    height: 300px !important;
+}
+figure.media > div > div > iframe {
+    width: 500px !important;
+}
+figure > img {
+    width: 100%;
+}
+@media only screen and (max-width: 600px) {
+    figure.media > div > div > iframe {
+        width: 300px !important;
+    }
+    figure.media > div > div {
+        height: 200px !important;
+    }
 }
 </style>
