@@ -6,26 +6,36 @@
             <div class="row">
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 sidebar">
                     <span class="version" v-text="version"></span>
-                    <div class="announce" @click="$refs.announce.openModal()" v-show="announce.valid">
+                    <h3>公告欄</h3>
+                    <div class="announce">
+                        <div>
+                            <h4 v-text="announce.title"></h4>
+                            <div class="ck-content" v-html="announce.content"></div>
+                        </div>
+                    </div>
+                    <!-- <div class="announce" @click="$refs.announce.openModal()" v-show="announce.valid">
                         <span>{{ (announce.start_at.substr(0,10)) }} {{ announce.title }}</span>
-                    </div>
-                    <div class="time" id="datetime"></div>
-                    <div class="title">
-                        <h4 v-text="clinicName"></h4>
-                    </div>
-                    <img src="@/assets/images/01.png" alt="">
+                    </div> -->
                 </div>
                 <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 main">
                     <input type="hidden" id="img" />
-                    <!-- 先出現已排班員工，再出現位排班員工  -->
-                    <button v-for="(d) in employee_in_shift" :key="d.employee_id" class="name" @click="Cam(d.employee_id)">
-                        {{ d.name }}
-                    </button>
-                    <br />
-                    <hr v-show="hrShow" />
-                    <button v-for="(d) in employee_not_in_shift" :key="d.employee_id" class="name" @click="Cam(d.employee_id)">
-                        {{ d.name }}
-                    </button>
+                    <div class="info">
+                        <div class="title">
+                            <h4 v-text="clinicName"></h4>
+                        </div>
+                        <div class="time" id="datetime"></div>
+                    </div>
+                    <div class="buttons">
+                        <!-- 先出現已排班員工，再出現位排班員工  -->
+                        <button v-for="(d) in employee_in_shift" :key="d.employee_id" class="name" @click="Cam(d.employee_id)">
+                            {{ d.name }}
+                        </button>
+                        <br />
+                        <hr v-show="hrShow" />
+                        <button v-for="(d) in employee_not_in_shift" :key="d.employee_id" class="name" @click="Cam(d.employee_id)">
+                            {{ d.name }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -127,7 +137,7 @@
             </template>
 
             <template v-slot:body>
-                <div v-html="announce.content"></div>
+                <div class="ck-content" v-html="announce.content"></div>
             </template>
 
             <template v-slot:footer>
@@ -147,7 +157,10 @@ import ImageHelper from "../utils/imghelper";
 import Webcam from "webcamjs";
 import Modal from "./Modal.vue";
 // require('date-time-format-timezone'); 
-
+// webrtc
+import adapter from 'webrtc-adapter';
+// 下拉式重整
+import PullToRefresh from 'pulltorefreshjs';
 export default {
     title: "打卡排班系統",
     name: "Shift",
@@ -156,9 +169,9 @@ export default {
     },
     data() {
         return {
-            clinicId:37,
+            clinicId:33,
             clinicName: "",
-            version: "v1.6",
+            version: "v1.7",
             date: "0000-00-00",
             mode: {
                 prd: "34.80.179.232",
@@ -204,7 +217,7 @@ export default {
                 dest_width: 100,
                 dest_height: 83.34,
                 image_format: "jpeg",
-                jpeg_quality: 70,
+                jpeg_quality: 50,
                 flip_horiz: true,
                 mandatory: {
                     facingMode: {
@@ -243,6 +256,12 @@ export default {
     mounted() {
         //時間
         this.timer();
+        const ptr = PullToRefresh.init({
+            mainElement: '#app',
+            onRefresh() {
+                window.location.reload();
+            }
+        });
     },
     methods: {
         Cam(id) {
@@ -1294,22 +1313,21 @@ body {
   padding: 0px;
 }
 .container-fluid{
-  height: 100vh;
+  height: 100%;
   width: 100vw;
 }
 .sidebar{
-  height: 100vh;
+  min-height: 100vh;
+  height: 100%;
   background:linear-gradient(315deg, #787FB9 , #A8ACD2 );
   text-align: center;
-  padding: 10% 0 0;
+  padding: 7% 0 0;
 }
 .sidebar img{
   width: 95%;
 }
 .sidebar .announce{
     cursor: pointer;
-    border: 1px solid black;
-    border-radius: 5px;
     padding: 3px 10px;
     width: fit-content;
     margin: 0 auto;
@@ -1317,6 +1335,15 @@ body {
     text-overflow : ellipsis;
     white-space : nowrap;
     width: 100%;
+    background-color: rgba(255, 255, 255, 1);
+    height: 500px;
+    overflow-y: scroll;
+    max-width: 420px;
+    word-break: break-all;
+    white-space: pre-wrap;
+}
+.sidebar .announce > div{
+    opacity:1;
 }
 .sidebar .time{
   color: #fff;
@@ -1335,16 +1362,48 @@ body {
   line-height: 200%;
 }
 .main{
-  height: 100vh;
+    min-height: 100vh;
+  /* height: 100vh; */
   background:linear-gradient(315deg, #646DC1 , #BCC1EF );
 }
+.main {
+    background-image: url('~@/assets/images/01.png'),
+        linear-gradient(315deg, #646DC1 , #BCC1EF );
+    background-repeat  : no-repeat,no-repeat;
+    background-position: bottom right,left;
+    background-size: 500px 300px,100%;
+}
+.main .title{
+  background-color:#CED2F8;
+  border-radius: 45px;
+  display: inline-block;
+    margin-top: .5rem;
+}
+.main .title h4{
+  color:#3F489C;
+  font-weight: bold;
+  line-height: 200%;
+  padding: 1px 30px;
+  margin-bottom: 0;
+  float: left;
+}
+.main .time{
+  color:#fff;
+  display: inline-block;
+  float: right;
+  size: 1rem;
+  margin-top: 1rem;
+  font-size: 1.5rem;
+}
+
+
 .main .name{
   display: inline-block;
   border-radius: 45px;
   border: 0px;
   width: 140px;
   background: #fff;
-  margin:20px 10px;
+  margin:10px 10px;
   box-shadow: 0 1px 20px  #9DA2CF;  
   color: #515151;
   text-align: center;
@@ -1358,9 +1417,10 @@ body {
   display: none;
   z-index: 2;
   position: absolute;
-  top: 0;
-  left: 0;
-  height: 100vh;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  height: 100%;
   width: 100vw;  
 }
 .windows {
@@ -1376,6 +1436,8 @@ body {
   left: 50%;
   margin-left: -315px;
   margin-top: -375px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .windows-title{
   background-color: #646DC1;
@@ -1686,6 +1748,10 @@ figure.media > div > div > iframe {
 figure > img {
     width: 100%;
 }
+.buttons {
+    text-align: center;
+}
+
 @media only screen and (max-width: 600px) {
     figure.media > div > div > iframe {
         width: 300px !important;
@@ -1693,5 +1759,69 @@ figure > img {
     figure.media > div > div {
         height: 200px !important;
     }
+    .sidebar {
+        padding: 100px 0;
+        min-height: auto;
+    }
+    .main .title,
+    .main .time {
+        float: inherit;
+    }
+    .main .info,
+    .buttons {
+        text-align: center;
+    }
+    .main {
+        background-image:linear-gradient(315deg, #646DC1 , #BCC1EF );
+        background-repeat: no-repeat;
+        background-position: left;
+        background-size: 100%;
+    }
+    .sidebar .announce{
+        height: 300px;
+        max-width: 420px;
+    }
+    .windows {
+        position: fixed;
+        margin-top: -315px;
+    }
+    .mask {
+        position: fixed;
+    }
 }
+.ck-content .image-style-side, .ck-content .image-style-align-left, .ck-content .image-style-align-center, .ck-content .image-style-align-right {
+	max-width: 50%;
+}
+ .ck-content .image-style-side {
+	float: right;
+	margin-left: 1.5em;
+}
+ .ck-content .image-style-align-left {
+	float: left;
+	margin-right: 1.5em;
+}
+ .ck-content .image-style-align-center {
+	margin-left: auto;
+	margin-right: auto;
+}
+ .ck-content .image-style-align-right {
+	float: right;
+	margin-left: 1.5em;
+}
+.announce::-webkit-scrollbar {  
+    width: 4px;
+   height:10px;
+   background-color:#b5b1b1;
+}  
+.announce::-webkit-scrollbar-track{  
+    -webkit-box-shadow: inset 0 0 6px rgba(255,255,255);  
+    border-radius: 50px; 
+    background-color:white;
+}
+
+.announce::-webkit-scrollbar-thumb{  
+    border-radius: 50px;  
+    -webkit-box-shadow: inset 0 0 6px rgba(255,255,255);  
+   background-color:#b5b1b1;
+} 
 </style>
