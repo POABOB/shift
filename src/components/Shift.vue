@@ -233,7 +233,7 @@ export default {
             loading: false,
             announce: {
                 valid: false,
-                title: '',
+                title: '尚無公告',
                 start_at: '0000-00-00',
                 end_at: '0000-00-00',
                 content: ''
