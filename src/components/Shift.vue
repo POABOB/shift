@@ -410,7 +410,7 @@ export default {
             //休假歸類為無排班
             if (_shift !== undefined && _shift.data[0].shift.shift_id !== 0) {
                 this.employeeData.shift_name = _shift.data[0].shift.shift_name;
-                console.log(_shift.data[0].shift);
+                // console.log(_shift.data[0].shift);
                 for (let prop in _shift.data[0].shift) {
                     const timeFormat = /^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/
                     if (prop.slice(0, 3) === "off") {
@@ -1017,7 +1017,7 @@ export default {
                             );
                             if (overTime < -parseInt(this.attendance.is_before.param1)) {
                                 //判斷是否下一班是否已經打上班卡，如果有則不顯示
-                                console.log(overTime);
+                                // console.log(overTime);
                                 let num = parseInt(item.slice(3, 4));
                                 if(num === 1) {
                                     if(
@@ -1029,7 +1029,7 @@ export default {
                                         this.isOnNone = true;
                                         break;
                                     } else {
-                                        console.log(1);
+                                        // console.log(1);
                                         this.isOnNone = false;
                                         break;
                                     }
@@ -1073,7 +1073,7 @@ export default {
                             );
                             if (overTime < -parseInt(this.attendance.is_before.param1)) {
                                 //判斷是否下一班是否已經打上班卡，如果有則不顯示
-                                console.log(overTime);
+                                // console.log(overTime);
                                 let num = parseInt(item.slice(3, 4));
                                 if(num === 2) {
                                     if(
@@ -1085,7 +1085,7 @@ export default {
                                         this.isOnNone = true;
                                         break;
                                     } else {
-                                        console.log(1);
+                                        // console.log(1);
                                         this.isOnNone = false;
                                         break;
                                     }
@@ -1129,7 +1129,7 @@ export default {
                             );
                             if (overTime < -parseInt(this.attendance.is_before.param1)) {
                                 //判斷是否下一班是否已經打上班卡，如果有則不顯示
-                                console.log(overTime);
+                                // console.log(overTime);
                                 let num = parseInt(item.slice(3, 4));
                                 if(num === 1) {
                                     if(
@@ -1143,7 +1143,7 @@ export default {
                                         this.isOnNone = true;
                                         break;
                                     } else {
-                                        console.log(1);
+                                        // console.log(1);
                                         this.isOnNone = false;
                                         break;
                                     }
