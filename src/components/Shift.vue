@@ -131,7 +131,7 @@
         </div>
         <!-- modal end -->
         <!-- component modal start -->
-        <modal ref="announce">
+        <!-- <modal ref="announce">
             <template v-slot:header>
                 <h2 v-text="announce.title"></h2>
             </template>
@@ -145,7 +145,7 @@
                     <button class="btn btn-secondary" @click="$refs.announce.closeModal()">關閉</button>
                 </div>
             </template>
-        </modal>
+        </modal> -->
         <!-- component modal end -->
     </div>
 </div>
@@ -155,7 +155,7 @@
 import axios from "axios";
 import ImageHelper from "../utils/imghelper";
 import Webcam from "webcamjs";
-import Modal from "./Modal.vue";
+// import Modal from "./Modal.vue";
 // require('date-time-format-timezone'); 
 // webrtc
 import adapter from 'webrtc-adapter';
@@ -164,9 +164,9 @@ import PullToRefresh from 'pulltorefreshjs';
 export default {
     title: "打卡排班系統",
     name: "Shift",
-    components : {
-        Modal
-    },
+    // components : {
+    //     Modal
+    // },
     data() {
         return {
             clinicId:33,
