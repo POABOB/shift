@@ -25,7 +25,7 @@
                         </div>
                         <div class="time" id="datetime"></div>
                     </div>
-                    <div class="buttons">
+                    <div v-if="!computeWidth" class="buttons">
                         <!-- 先出現已排班員工，再出現位排班員工  -->
                         <button v-for="(d) in employee_in_shift" :key="d.employee_id" class="name" @click="Cam(d.employee_id)">
                             {{ d.name }}
@@ -36,12 +36,129 @@
                             {{ d.name }}
                         </button>
                     </div>
+                    <div v-else class="selects">
+                        <select v-model="selects.in.employee_id" class="form-control" v-show="employee_in_shift.length > 0">
+                            <option value="0">請選擇已排班員工</option>
+                            <option v-for="(d) in employee_in_shift" :key="d.employee_id" :value="d.employee_id">{{ d.name }}</option>
+                        </select>
+                        <hr v-show="hrShow" />
+                        <select v-model="selects.not_in.employee_id" class="form-control" v-show="employee_not_in_shift.length > 0">
+                            <option value="0">請選擇未排班員工</option>
+                            <option v-for="(d) in employee_not_in_shift" :key="d.employee_id" :value="d.employee_id">{{ d.name }}</option>
+                        </select>
+                        <button class="button" @click="CamMobile()" style="margin: 10px 0;width:100%;">選擇員工</button>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="mask" id="mask" @click="modalToggle()"></div>
         <!-- modal start -->
-        <div class="windows" :class="{ none: windowsBtn }" id="windows">
+        <div v-if="computeWidth" class="windows mobile" :class="{ none: windowsBtn }" id="windows">
+            <div class="windows-top">
+                <div class="windows-title">
+                    <div class="title">員工打卡資料</div>
+                    <div class="tltle-time"><span v-text="date"></span></div>
+                </div>
+                <div class="time" id="datetime2"></div>
+                <div class="personal">
+                    <div class="personal-left">
+                        <div id="my_camera"></div>
+                    </div>
+                    
+                </div>
+                <ul class="nav nav-pills custom justify-content-center">
+                    <li class="nav-item">
+                        <span class="nav-link" @click="tab(0)" :class="{ active: nav[0] }">打卡</span>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link"  @click="tab(1)" :class="{ active: nav[1] }">簽到</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="tab-content windows-bottom" id="pills-tabContent">
+                <div class="tab-pane fade" :class="{ active: nav[0] , show: nav[0]}">
+                    <div class="personal-right">
+                        <h5>員工姓名</h5>
+                        <div class="input"><span v-text="employeeData.name"></span></div>
+                        <h5>班別</h5>
+                        <div class="input"><span v-text="employeeData.shift_name"></span></div>
+                    </div>
+                    <div class="work">
+                        <div class="work-1">
+                            <div class="work-1-title">第一班</div>
+                            <div class="start" :class="{ disabled: btnDisabled('on_1st') }" @click="takeSnapshot(employeeData.employee_id, 'on_1st')">
+                                <img width="25" height="25" src="@/assets/images/start.png" class="icon">
+                                <h5 v-text="onBtns('on_1st')"></h5>
+                            </div>
+                            <div class="off" :class="{ disabled: btnDisabled('off_1st') }" @click="takeSnapshot(employeeData.employee_id, 'off_1st')">
+                                <img width="25" height="25" src="@/assets/images/off.png" class="icon">
+                                <h5 v-text="offBtns('off_1st')"></h5>
+                            </div>
+                        </div>
+                        <div class="work-2">
+                            <div class="work-2-title">第二班</div>
+                            <div class="start" :class="{ disabled: btnDisabled('on_2nd') }" @click="takeSnapshot(employeeData.employee_id, 'on_2nd')">
+                                <img width="25" height="25" src="@/assets/images/start.png" class="icon">
+                                <h5 v-text="onBtns('on_2nd')"></h5>
+                            </div>
+                            <div class="off" :class="{ disabled: btnDisabled('off_2nd') }" @click="takeSnapshot(employeeData.employee_id, 'off_2nd')">
+                                <img width="25" height="25" src="@/assets/images/off.png" class="icon">
+                                <h5 v-text="offBtns('off_2nd')"></h5>
+                            </div>
+                        </div>
+                        <div class="work-3">
+                            <div class="work-3-title">第三班</div>
+                            <div class="start" :class="{ disabled: btnDisabled('on_3rd') }" @click="takeSnapshot(employeeData.employee_id, 'on_3rd')">
+                                <img width="25" height="25" src="@/assets/images/start.png" class="icon">
+                                <h5 v-text="onBtns('on_3rd')"></h5>
+                            </div>
+                            <div class="off" :class="{ disabled: btnDisabled('off_3rd') }" @click="takeSnapshot(employeeData.employee_id, 'off_3rd')">
+                                <img width="25" height="25" src="@/assets/images/off.png" class="icon">
+                                <h5 v-text="offBtns('off_3rd')"></h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btns-fixed">
+                        <button class="red button" :class="{ none: isOnNone }" @click="takeSnapshot(employeeData.employee_id, 'on')">
+                            早到上班
+                        </button>
+                        <button class="red button" :class="{ none: isOffNone }" @click="takeSnapshot(employeeData.employee_id, 'off')">
+                            加班下班
+                        </button>
+                        <input type="button" value="✕  關閉" class="button" @click="modalToggle()" />
+                    </div>
+                    
+                </div>
+                <div class="tab-pane fade" :class="{ active: nav[1] , show: nav[1]}">
+                    <div class="personal-right">
+                        <h5>員工姓名</h5>
+                        <div class="input"><span v-text="employeeData.name"></span></div>
+                        <h5>班別</h5>
+                        <div class="input"><span v-text="employeeData.shift_name"></span></div>
+                    </div>
+                    <div class="work check">
+                        <div class="work-1">
+                            <div class="work-1-title">自由打卡</div>
+                            <div class="start" :class="{ disabled: checkBtnDisabled('on_1st') }" @click="takeCheckSnapshot(employeeData.employee_id, 'on_1st')">
+                                <img width="25" height="25" src="@/assets/images/start.png" class="icon">
+                                <h5 v-text="checkBtns('on_1st')"></h5>
+                            </div>
+                            <div class="off" :class="{ disabled: checkBtnDisabled('off_1st') }" @click="takeCheckSnapshot(employeeData.employee_id, 'off_1st')">
+                                <img width="25" height="25" src="@/assets/images/off.png" class="icon">
+                                <h5 v-text="checkBtns('off_1st')"></h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btns-fixed">
+                        <input type="button" value="✕  關閉" class="button" @click="modalToggle()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- modal end -->
+
+        <div v-else class="windows" :class="{ none: windowsBtn }" id="windows">
             <div class="windows-title">
                 <div class="title">員工打卡資料</div>
                 <div class="tltle-time"><span v-text="date"></span></div>
@@ -129,24 +246,6 @@
                 </div>
             </div>
         </div>
-        <!-- modal end -->
-        <!-- component modal start -->
-        <!-- <modal ref="announce">
-            <template v-slot:header>
-                <h2 v-text="announce.title"></h2>
-            </template>
-
-            <template v-slot:body>
-                <div class="ck-content" v-html="announce.content"></div>
-            </template>
-
-            <template v-slot:footer>
-                <div class="d-flex justify-content-center">
-                    <button class="btn btn-secondary" @click="$refs.announce.closeModal()">關閉</button>
-                </div>
-            </template>
-        </modal> -->
-        <!-- component modal end -->
     </div>
 </div>
 </template>
@@ -171,7 +270,7 @@ export default {
         return {
             clinicId:33,
             clinicName: "",
-            version: "v1.7",
+            version: "v1.8",
             date: "0000-00-00",
             mode: {
                 prd: "34.80.179.232",
@@ -225,6 +324,20 @@ export default {
                     },
                 },
             },
+            webcamMobile: {
+                width: 300,
+                height: 160,
+                dest_width: 100,
+                dest_height: 53.33,
+                image_format: "jpeg",
+                jpeg_quality: 50,
+                flip_horiz: true,
+                mandatory: {
+                    facingMode: {
+                        exact: "environment",
+                    },
+                },
+            },
             showModal: false,
             nav: {
                 0: true,
@@ -237,6 +350,11 @@ export default {
                 start_at: '0000-00-00',
                 end_at: '0000-00-00',
                 content: ''
+            },
+            windowWidth: document.body.clientWidth,
+            selects: {
+                in: {employee_id: 0},
+                not_in: {employee_id: 0}
             }
         };
     },
@@ -262,6 +380,9 @@ export default {
                 window.location.reload();
             }
         });
+        window.addEventListener('resize', () => {
+            this.windowWidth = document.body.clientWidth
+        })
     },
     methods: {
         Cam(id) {
@@ -274,6 +395,27 @@ export default {
             this.checkEarlyBtn(id);
             this.$nextTick();
             this.modalToggle()
+        },
+        CamMobile() {
+            //建立webcam配置
+            let id = 0;
+            id = this.selects.in.employee_id;
+            if(parseInt(id) === 0) {
+                id = this.selects.not_in.employee_id;
+            }
+
+            if(parseInt(id) === 0) {
+                alert("請選擇員工!");
+            } else {
+                Webcam.set(this.webcamMobile);
+                Webcam.attach("#my_camera");
+                this.getEmployeeData(id);
+                this.getEmployeeRecord(id);
+                this.checkOverTimeBtn(id);
+                this.checkEarlyBtn(id);
+                this.$nextTick();
+                this.modalToggle()
+            }
         },
         changeTimezone(date, ianatz) {
             // suppose the date is 12:00 UTC
@@ -1258,11 +1400,15 @@ export default {
             if(this.showModal === false) {
                 document.all.mask.style.display = 'block';
                 document.all.windows.style.display = 'block';
+                document.body.style.overflow = 'hidden';
                 this.showModal = true;
             } else{
                 document.getElementById('mask').style.display = 'none';
                 document.getElementById('windows').style.display = 'none';
+                document.body.style.overflow = '';
                 this.showModal = false;
+                this.selects.in.employee_id = 0;
+                this.selects.not_in.employee_id = 0;
             }
         },
         tab(index = 0) {
@@ -1287,6 +1433,13 @@ export default {
         },
         windowsBtn() {
             return this.isOnNone && this.isOffNone;
+        },
+        computeWidth() {
+            if(this.windowWidth > 600) {
+                return false;
+            } else {
+                return true;
+            }
         }
     },
     watch: {
@@ -1298,6 +1451,16 @@ export default {
                 }
             },
         },
+        "selects.in.employee_id": function () {
+            if(parseInt(this.selects.in.employee_id) !== 0) {
+                this.selects.not_in.employee_id = 0;
+            }
+        },
+        "selects.not_in.employee_id": function () {
+            if(parseInt(this.selects.not_in.employee_id) !== 0) {
+                this.selects.in.employee_id = 0;
+            }
+        }
     },
 };
 </script>
@@ -1740,54 +1903,16 @@ body {
   overflow: hidden;
 }
 figure.media > div > div {
-    height: 300px !important;
+    height: auto !important;
 }
-figure.media > div > div > iframe {
-    width: 500px !important;
+figure.media > div {
+    width: 100% !important;
 }
 figure > img {
     width: 100%;
 }
 .buttons {
     text-align: center;
-}
-
-@media only screen and (max-width: 600px) {
-    figure.media > div > div > iframe {
-        width: 300px !important;
-    }
-    figure.media > div > div {
-        height: 200px !important;
-    }
-    .sidebar {
-        padding: 100px 0;
-        min-height: auto;
-    }
-    .main .title,
-    .main .time {
-        float: inherit;
-    }
-    .main .info,
-    .buttons {
-        text-align: center;
-    }
-    .main {
-        background-image:linear-gradient(315deg, #646DC1 , #BCC1EF );
-        background-repeat: no-repeat;
-        background-position: left;
-        background-size: 100%;
-    }
-    .sidebar .announce{
-        height: 300px;
-        max-width: 420px;
-    }
-    .windows {
-        position: fixed;
-        margin-top: -315px;
-    }
-    .mask {
-        position: fixed;
-    }
 }
 .ck-content .image-style-side, .ck-content .image-style-align-left, .ck-content .image-style-align-center, .ck-content .image-style-align-right {
 	max-width: 50%;
@@ -1824,4 +1949,156 @@ figure > img {
     -webkit-box-shadow: inset 0 0 6px rgba(255,255,255);  
    background-color:#b5b1b1;
 } 
+@media only screen and (max-width: 600px) {
+    figure.media > div > div > iframe {
+        width: 300px !important;
+    }
+    figure.media > div > div {
+        height: 200px !important;
+    }
+    .sidebar {
+        padding: 100px 0;
+        min-height: auto;
+    }
+    .main .title,
+    .main .time {
+        float: inherit;
+    }
+    .main .info,
+    .buttons {
+        text-align: center;
+    }
+    .main {
+        background-image:linear-gradient(315deg, #646DC1 , #BCC1EF );
+        background-repeat: no-repeat;
+        background-position: left;
+        background-size: 100%;
+    }
+    .main .time  {
+        display: inherit;
+    }
+    .sidebar .announce{
+        height: 300px;
+        max-width: 420px;
+    }
+    .windows.mobile {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin-left: 0;
+        margin-top: 0;
+        overflow-y: hidden;
+    }
+    .windows.mobile.none {
+        height: 100%;
+    }
+    .mask {
+        position: fixed;
+    }
+    .windows.mobile .personal-right .input {
+        margin: auto;
+        font-size: .9rem;
+    }
+    .windows.mobile .personal-right h5 {
+        margin-left: 40px;
+        font-size: .8rem;
+    }
+    .windows.mobile .windows-title {
+        display: flex;
+        height: 30px;
+        width: 100%;
+    }
+    .windows.mobile .windows-title .title {
+        flex: 1;
+        line-height: 30px;
+    }
+    .windows.mobile .windows-title .tltle-time {
+        text-align: right;
+        flex: 1;
+        line-height: 30px;
+    }
+    .windows.mobile .time {
+        margin: 10px auto 20px;
+        font-size: 20px;
+    }
+    .windows.mobile .nav-pills.custom .nav-item .nav-link {
+        border-radius: 0 30px 30px 0;
+        padding: 0.25rem 1rem;
+    }
+    .windows.mobile .nav-pills.custom .nav-item:first-child .nav-link {
+        border-radius: 30px 0 0 30px;
+    }
+    .windows.mobile .button {
+        width: 90%;
+    }
+    .windows.mobile #my_camera {
+        margin-top: -15px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .windows.mobile .tab-content > .active {
+        position: relative;
+        height: calc(100vh - 270px);
+    }
+    .windows.mobile.none .work {
+        padding: 0 20px 160px 20px;
+    }
+    .windows.mobile .work {
+        display: block;
+        overflow-y: scroll;
+        height: 100%;
+        margin-top: 10px;
+        padding: 0 20px 210px 20px;
+    }
+    .windows.mobile .btns-fixed {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: #fff;
+        padding-bottom: 5px;
+    }
+    .windows.mobile .btns-fixed > .button {
+        margin-top: 5px;
+        padding-left: 0;
+    }
+    .windows.mobile .work .work-1,
+    .windows.mobile .work .work-2,
+    .windows.mobile .work .work-3 {
+        margin-right: auto;
+        margin-left: auto;
+        padding-bottom: 1px;
+        width: 70%;
+        margin-bottom: 10px;
+    }
+    
+    .windows.mobile .windows-top {
+        max-height: 270px;
+    }
+    .windows.mobile .windows .time {
+        font-size: 20px;
+    }
+    .windows.mobile .start {
+        height: 40px;
+        margin: 5px auto;
+        font-size: 14px;
+        padding-left: 30px;
+    }
+    .windows.mobile .start h5 {
+        line-height: 40px;
+    }
+    .windows.mobile .off {
+        height: 40px;
+        margin: 5px auto;
+        font-size: 14px;
+        padding-left: 30px;
+    }
+    .windows.mobile .off h5 {
+        line-height: 40px;
+    }
+}
+
 </style>
