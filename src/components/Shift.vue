@@ -4,20 +4,26 @@
     <div id="app">
         <div class="container-fluid ">
             <div class="row">
-                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 sidebar">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 sidebar" :class="{ active: navbar }">
+                    <div @click="navbar = !navbar" class="hamburger" :class="{ active: navbar }">
+                        <span></span>
+                    </div>
                     <span class="version" v-text="version"></span>
-                    <h3>公告欄</h3>
-                    <div class="announce">
-                        <div>
-                            <h4 v-text="announce.title"></h4>
-                            <div class="ck-content" v-html="announce.content"></div>
+                    <div class="middle">
+                        <h3>公告欄</h3>
+                        <div class="announce">
+                            <div>
+                                <h4 v-text="announce.title"></h4>
+                                <div class="ck-content" v-html="announce.content"></div>
+                            </div>
                         </div>
                     </div>
+                    
                     <!-- <div class="announce" @click="$refs.announce.openModal()" v-show="announce.valid">
                         <span>{{ (announce.start_at.substr(0,10)) }} {{ announce.title }}</span>
                     </div> -->
                 </div>
-                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 main">
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 main" :class="{ active: navbar }">
                     <input type="hidden" id="img" />
                     <div class="info">
                         <div class="title">
@@ -355,7 +361,12 @@ export default {
             selects: {
                 in: {employee_id: 0},
                 not_in: {employee_id: 0}
-            }
+            },
+            navbar: false,
+            back: {
+                time: 0,
+                click: 0
+            },
         };
     },
     created() {
@@ -376,6 +387,7 @@ export default {
         this.timer();
         const ptr = PullToRefresh.init({
             mainElement: '#app',
+            triggerElement: '.row',
             onRefresh() {
                 window.location.reload();
             }
@@ -383,6 +395,10 @@ export default {
         window.addEventListener('resize', () => {
             this.windowWidth = document.body.clientWidth
         })
+        document.addEventListener('backbutton', this.onBackKeyDown, false);
+    },
+    beforeDestroy(){
+        document.removeEventListener('backbutton', this.backbutton,false)
     },
     methods: {
         Cam(id) {
@@ -1418,6 +1434,46 @@ export default {
             } else {
                 this.nav[0] = false;
             }
+        },
+        Toast(msg,duration){
+            duration=isNaN(duration)?3000:duration;
+            var m = document.createElement('div');
+            m.innerHTML = msg;
+            m.style.cssText="width: 60%;min-width: 150px;opacity: 0.7;height: 30px;color: rgb(255, 255, 255);line-height: 30px;text-align: center;border-radius: 15px;position: fixed;bottom: 70px;left: 20%;z-index: 999999;background: rgb(0, 0, 0, 0.5);font-size: 12px;";
+            document.body.appendChild(m);
+            setTimeout(function() {
+                var d = 0.5;
+                m.style.webkitTransition = '-webkit-transform ' + d + 's ease-in, opacity ' + d + 's ease-in';
+                m.style.opacity = '0';
+                setTimeout(function() { document.body.removeChild(m) }, d * 1000);
+            }, duration);
+        },
+        onBackKeyDown(e) {
+            e.preventDefault();
+            if(this.showModal === true) {
+                document.getElementById('mask').style.display = 'none';
+                document.getElementById('windows').style.display = 'none';
+                document.body.style.overflow = '';
+                this.showModal = false;
+                this.selects.in.employee_id = 0;
+                this.selects.not_in.employee_id = 0;
+            } else{
+                if (this.back.time == 0) {
+                    this.back.time = (new Date()).getTime();
+                }
+
+                let tmpTime = (new Date()).getTime();
+                let isShort = (tmpTime-this.back.time<3000)
+                if(isShort && this.back.click != 0){
+                    navigator.app.exitApp();
+                }else if(isShort){
+                    this.back.click++;
+                }else{
+                    this.back.click = 0
+                }
+                this.Toast('再按一次來退出程式!');
+                this.back.time = tmpTime;
+            }
         }
     },
     computed: {
@@ -1877,7 +1933,7 @@ body {
 }
 .version {
     position: absolute;
-    top: 10px;
+    top: 12.5px;
     left: 10px;
     color: #eee;
     opacity: 0.5;
@@ -1957,8 +2013,11 @@ figure > img {
         height: 200px !important;
     }
     .sidebar {
-        padding: 100px 0;
-        min-height: auto;
+        padding: 0 0;
+        min-height: 50px;
+        height: 50px;
+        transition:  1s;
+        overflow: hidden;
     }
     .main .title,
     .main .time {
@@ -1973,6 +2032,14 @@ figure > img {
         background-repeat: no-repeat;
         background-position: left;
         background-size: 100%;
+        min-height: calc(100vh - 50px);
+    }
+    .main.active {
+        background-image:linear-gradient(315deg, #646DC1 , #BCC1EF );
+        background-repeat: no-repeat;
+        background-position: left;
+        background-size: 100%;
+        min-height: 100vh;
     }
     .main .time  {
         display: inherit;
@@ -1981,6 +2048,15 @@ figure > img {
         height: 300px;
         max-width: 420px;
     }
+    .sidebar .middle {
+        margin-top: 20vh;
+    }
+
+    .sidebar.active {
+        min-height: 100vh;
+    }
+
+
     .windows.mobile {
         position: fixed;
         width: 100%;
@@ -2098,6 +2174,72 @@ figure > img {
     }
     .windows.mobile .off h5 {
         line-height: 40px;
+    }
+
+    .hamburger {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto;
+        border-radius: 50%;
+        overflow: hidden;
+        text-indent: 100%;
+        color: transparent;
+        white-space: nowrap;
+        cursor: pointer;
+        -webkit-transition: 0.3s;
+        transition: 0.3s;
+        position: absolute;
+        top: 1px;
+        right: 2.5px;
+    }
+
+    .hamburger span, .hamburger span:before, .hamburger span:after {
+        position: absolute;
+        width: 30px;
+        height: 3px;
+        background: white;
+        border-radius: 4px;
+    }
+
+    .hamburger span {
+        top: calc(50% - 2px);
+        right: 12.5px;
+        -webkit-transition: 0.3s;
+        transition: 0.3s;
+    }
+    .hamburger span:before, .hamburger span:after {
+        content: "";
+        left: 0;
+        -webkit-transition: 0.3s;
+        transition: 0.3s;
+    }
+    .hamburger span:before {
+        bottom: 10px;
+    }
+    .hamburger span:after {
+        top: 10px;
+    }
+
+    .hamburger.active span {
+        -webkit-transform: rotate(270deg);
+        -ms-transform: rotate(270deg);
+        transform: rotate(270deg);
+    }
+
+    .hamburger.active span:before {
+        width: 50%;
+        -webkit-transform: translateX(17px) translateY(7px) rotate(45deg);
+        -ms-transform: translateX(17px) translateY(7px) rotate(45deg);
+        transform: translateX(17px) translateY(7px) rotate(45deg);
+        bottom: 12px;
+    }
+
+    .hamburger.active span:after {
+        width: 50%;
+        -webkit-transform: translateX(17px) translateY(-7px) rotate(-45deg);
+        -ms-transform: translateX(17px) translateY(-7px) rotate(-45deg);
+        transform: translateX(17px) translateY(-7px) rotate(-45deg);
+        top: 12px;
     }
 }
 
