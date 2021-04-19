@@ -1547,9 +1547,9 @@ body {
 }
 .sidebar .announce{
     cursor: pointer;
-    padding: 3px 10px;
+    padding: 2rem 1rem;
     width: fit-content;
-    margin: 0 auto;
+    margin: 15px auto 0;
     overflow : hidden;
     text-overflow : ellipsis;
     white-space : nowrap;
@@ -2007,7 +2007,7 @@ figure > img {
 } 
 @media only screen and (max-width: 600px) {
     figure.media > div > div > iframe {
-        width: 300px !important;
+        width: 100% !important;
     }
     figure.media > div > div {
         height: 200px !important;
@@ -2016,7 +2016,7 @@ figure > img {
         padding: 0 0;
         min-height: 50px;
         height: 50px;
-        transition:  1s;
+        transition:  .5s;
         overflow: hidden;
     }
     .main .title,
@@ -2045,11 +2045,10 @@ figure > img {
         display: inherit;
     }
     .sidebar .announce{
-        height: 300px;
         max-width: 420px;
     }
     .sidebar .middle {
-        margin-top: 20vh;
+        margin-top: 10vh;
     }
 
     .sidebar.active {
@@ -2161,7 +2160,8 @@ figure > img {
         height: 40px;
         margin: 5px auto;
         font-size: 14px;
-        padding-left: 30px;
+        padding-left: 0;
+        text-align: center;
     }
     .windows.mobile .start h5 {
         line-height: 40px;
@@ -2170,7 +2170,8 @@ figure > img {
         height: 40px;
         margin: 5px auto;
         font-size: 14px;
-        padding-left: 30px;
+        padding-left: 0;
+        text-align: center;
     }
     .windows.mobile .off h5 {
         line-height: 40px;
@@ -2180,7 +2181,7 @@ figure > img {
         width: 50px;
         height: 50px;
         margin: 0 auto;
-        border-radius: 50%;
+        /* border-radius: 50%; */
         overflow: hidden;
         text-indent: 100%;
         color: transparent;
@@ -2214,32 +2215,47 @@ figure > img {
         transition: 0.3s;
     }
     .hamburger span:before {
-        bottom: 10px;
+        -webkit-transform: translateY(-10px);
+        -ms-transform: translateY(-10px);
+        transform: translateY(-10px);
     }
     .hamburger span:after {
-        top: 10px;
+        -webkit-transform: translateY(10px);
+        -ms-transform: translateY(10px);
+        transform: translateY(10px);
     }
 
     .hamburger.active span {
-        -webkit-transform: rotate(270deg);
+        /* -webkit-transform: rotate(270deg);
         -ms-transform: rotate(270deg);
-        transform: rotate(270deg);
+        transform: rotate(270deg); */
+        -webkit-transform: translateX(-50px);
+        -ms-transform: translateX(-50px);
+        transform: translateX(-50px);
+        background: transparent;
+        box-shadow: none;
     }
 
     .hamburger.active span:before {
-        width: 50%;
+        /* width: 50%;
         -webkit-transform: translateX(17px) translateY(7px) rotate(45deg);
         -ms-transform: translateX(17px) translateY(7px) rotate(45deg);
         transform: translateX(17px) translateY(7px) rotate(45deg);
-        bottom: 12px;
+        bottom: 12px; */
+        -webkit-transform: rotate(45deg) translate(35px, -35px);
+        -ms-transform: rotate(45deg) translate(35px, -35px);
+        transform: rotate(45deg) translate(35px, -35px);
     }
 
     .hamburger.active span:after {
-        width: 50%;
+        /* width: 50%;
         -webkit-transform: translateX(17px) translateY(-7px) rotate(-45deg);
         -ms-transform: translateX(17px) translateY(-7px) rotate(-45deg);
         transform: translateX(17px) translateY(-7px) rotate(-45deg);
-        top: 12px;
+        top: 12px; */
+        -webkit-transform: rotate(-45deg) translate(35px, 35px);
+        -ms-transform: rotate(-45deg) translate(35px, 35px);
+        transform: rotate(-45deg) translate(35px, 35px);
     }
 }
 
