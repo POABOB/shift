@@ -1418,6 +1418,7 @@ export default {
                 document.all.windows.style.display = 'block';
                 document.body.style.overflow = 'hidden';
                 this.showModal = true;
+                this.loading = false;
             } else{
                 document.getElementById('mask').style.display = 'none';
                 document.getElementById('windows').style.display = 'none';
@@ -1555,7 +1556,7 @@ body {
     white-space : nowrap;
     width: 100%;
     background-color: rgba(255, 255, 255, 1);
-    height: 500px;
+    height: 60vh;
     overflow-y: scroll;
     max-width: 420px;
     word-break: break-all;
