@@ -9,6 +9,10 @@
                         <span></span>
                     </div>
                     <span class="version" v-text="version"></span>
+                    <div class="custom-control custom-switch mt-3">
+                        <input type="checkbox" class="custom-control-input" id="Switch" v-model="cameraSwitch" @change="cameraSwitchChange()">
+                        <label class="custom-control-label" for="Switch">是否開啟相機打卡</label>
+                    </div>
                     <div class="middle">
                         <h3>公告欄</h3>
                         <div class="announce">
@@ -68,7 +72,7 @@
                 <div class="time" id="datetime2"></div>
                 <div class="personal">
                     <div class="personal-left">
-                        <div id="my_camera"></div>
+                        <div id="my_camera" class="camera OnMobile"></div>
                     </div>
                     
                 </div>
@@ -172,7 +176,7 @@
             <div class="time" id="datetime2"></div>
             <div class="personal">
                 <div class="personal-left">
-                    <div id="my_camera"></div>
+                    <div id="my_camera"  class="camera On"></div>
                 </div>
                 <div class="personal-right">
                     <h5>員工姓名</h5>
@@ -276,7 +280,7 @@ export default {
         return {
             clinicId:33,
             clinicName: "",
-            version: "v1.8",
+            version: "v1.9",
             date: "0000-00-00",
             mode: {
                 prd: "34.80.179.232",
@@ -367,6 +371,7 @@ export default {
                 time: 0,
                 click: 0
             },
+            cameraSwitch: true
         };
     },
     created() {
@@ -376,11 +381,21 @@ export default {
         //時區校正
        const d = this.changeTimezone(new Date(), 'Asia/Taipei');
         this.date = d.Format("yyyy-MM-dd");
+        
+        //判斷是否使用camera
+        let s = window.localStorage.getItem('cameraSwitch');
+        if(s !== 'true' || s !== 'false') {
+            this.cameraSwitch = (s === 'true' ? true : false);
+        } else {
+            window.localStorage.setItem('cameraSwitch', this.cameraSwitch);
+        }
+
        //一次性資料
         this.getClinicData();
 
         //利用token獲取診所人員紀錄
         this.getShiftRecord();
+
     },
     mounted() {
         //時間
@@ -403,8 +418,10 @@ export default {
     methods: {
         Cam(id) {
             //建立webcam配置
-            Webcam.set(this.webcam);
-            Webcam.attach("#my_camera");
+            if(this.cameraSwitch === true) {
+                Webcam.set(this.webcam);
+                Webcam.attach("#my_camera");
+            }
             this.getEmployeeData(id);
             this.getEmployeeRecord(id);
             this.checkOverTimeBtn(id);
@@ -423,8 +440,10 @@ export default {
             if(parseInt(id) === 0) {
                 alert("請選擇員工!");
             } else {
-                Webcam.set(this.webcamMobile);
-                Webcam.attach("#my_camera");
+                if(this.cameraSwitch === true) {
+                    Webcam.set(this.webcamMobile);
+                    Webcam.attach("#my_camera");
+                }
                 this.getEmployeeData(id);
                 this.getEmployeeRecord(id);
                 this.checkOverTimeBtn(id);
@@ -652,7 +671,7 @@ export default {
                     },
                 };
                 this.loading = true;
-                document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4QBmRXhpZgAASUkqAAgAAAADABIBAwABAAAAAQAAADEBAgANAAAAMgAAAGmHBAABAAAAQAAAAAAAAADnm7jniYcgMi43LjAAAAIAAqAJAAEAAAA0AQAAA6AJAAEAAACfAAAAAAAAAP/hCfRodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDQuNC4wLUV4aXYyIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIiBleGlmOlBpeGVsWERpbWVuc2lvbj0iMzA4IiBleGlmOlBpeGVsWURpbWVuc2lvbj0iMTU5IiB0aWZmOkltYWdlV2lkdGg9IjMwOCIgdGlmZjpJbWFnZUhlaWdodD0iMTU5IiB0aWZmOk9yaWVudGF0aW9uPSIxIi8+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPD94cGFja2V0IGVuZD0idyI/Pv/bAEMAAwICAwICAwMDAwQDAwQFCAUFBAQFCgcHBggMCgwMCwoLCw0OEhANDhEOCwsQFhARExQVFRUMDxcYFhQYEhQVFP/bAEMBAwQEBQQFCQUFCRQNCw0UFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFP/+ADxDUkVBVE9SOiBnZC1qcGVnIHYxLjAgKHVzaW5nIElKRyBKUEVHIHY2MiksIHF1YWxpdHkgPSA4MgoA/8AAEQgAnwE0AwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A/VOiikzg0ALRSdRS0AFFFFABRRRQAUUUmcGgBCM0o4FHUUUAFLRRQAUUUUAFNIzTqKAGg4HvS9RSEZpQMCgAzg0dRSEZpQMCgBaKKTODQAtFJ1FLQAUUUUAFFJnBo6igBaTODS00jNAC9RS0gGBS0ANIzRtp1FADdtKOBS0lAC0UUUAFNIzS5waOooAAMClpKWgBM4NGRSEZo20AL1FLSAYFLQAU09adSEUAA6UtIOBS0AFFFFACZwaMikIzRtoAXqKWkAwKWgApKWigApKWigAppGadRQAgGBS0lLQAUUUUANIzSgYFLSUALRRSZwaAClpOopaACiiigAooooAKKKKAGkZpQMClpKAFooooAKKKKAEpaKKACiiigBKWiigAooooAKKKKAEpaKKACiiigAooooAKTODS00jNAC5FHUUm2lAwKAFooooAKKKKACmnrTqQigAHSlpBwKWgAooooAKKKKACiiigAooooAKKKKACiikzg0ALRSdRS0AFFFFABRSZwaOooAWiiigAooooAKKKKACiiigAooooAKKKKACkpaKACiiigAooooAKKKKAEpaKKACiiigAooooAKKKKACkzg0tNIzQAuRR1FJtpQMCgBaaRmnUUAIBgUtJS0AFFFFADSM0oGBS0lABnBo6ikIzSgYFAC0mcGlppGaAF6ilpAMCloATODR1FIRmlAwKAFooooAKKKKACiiigAooooATODR1FIRmlAwKAFoopM4NAC0UnUUtABRRRQAUmcGjODSEZNACjkUUAYooAWkzg0tNIzQAvUUUAYFLQAUUUUAFFFFABRRRQAUUUUAFJS0UAFFFFACUtFFABSUtFABRRRQAUmcGlppGaAF6ilpAMCloAKKKKACkpaKACmkZp1FACAYFLSUtABRRRQA0jNKOBRnBo6igBaKKKACiiigBKWiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooASloooAKKKKACiiigAooooAKKKKACiiigBpGaUDApaSgBaKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooATODR1FIRmlAwKAFpM4NLTSM0AL1FLSAYFLQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUmeaAFooooAKKKKACiiigAooooAKKKKACkzg0tNIzQAvUUtIBgUtABSUtFABRRRQAlLRRQAUUUUAFFFFABRRRQAUUmcGjqKAFopM4NHUUALRRRQAUUUUAFFFFABRTSeaKAHUmPmpaKACikzg0dRQAtFFFABRRRQAUUUUAFFFFACE4paKKAEoJxS0UAFFFFABRRRQAUUUmcGgBaKTqKWgAooooAKKKKAGkZpQMClpKAEIzSgYFLSUALRRRQAUUUUAFFFFACYopaKAP/Z'
+                document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAA0NDQ0ODQ4QEA4UFhMWFB4bGRkbHi0gIiAiIC1EKjIqKjIqRDxJOzc7STxsVUtLVWx9aWNpfZeHh5e+tb75+f8BDQ0NDQ4NDhAQDhQWExYUHhsZGRseLSAiICIgLUQqMioqMipEPEk7NztJPGxVS0tVbH1pY2l9l4eHl761vvn5///CABEIABgAFwMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAAB//aAAgBAQAAAACkAH//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAA//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDEAAAAA//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAECAQE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAEDAQE/AB//2Q=='
                 //插入遠端server
                 axios
                     .post(
@@ -696,9 +715,13 @@ export default {
                     if (confirm("是否打卡加班?")) {
                         //拍照並且詢問是否要打卡，若無則不執行saveRemote
                         const time = d.Format("yyyy-MM-dd hh:mm:ss");
-                        Webcam.snap(function (dataUri) {
-                            document.getElementById("img").value = dataUri;
-                        });
+                        if(this.cameraSwitch === true) {
+                            Webcam.snap(function (dataUri) {
+                                document.getElementById("img").value = dataUri;
+                            });
+                        } else {
+                            document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAA0NDQ0ODQ4QEA4UFhMWFB4bGRkbHi0gIiAiIC1EKjIqKjIqRDxJOzc7STxsVUtLVWx9aWNpfZeHh5e+tb75+f8BDQ0NDQ4NDhAQDhQWExYUHhsZGRseLSAiICIgLUQqMioqMipEPEk7NztJPGxVS0tVbH1pY2l9l4eHl761vvn5///CABEIABgAFwMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAAB//aAAgBAQAAAACkAH//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAA//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDEAAAAA//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAECAQE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAEDAQE/AB//2Q=='
+                        }                        
 
                         //判斷加班時數
                         //獲取該員工排班
@@ -759,9 +782,13 @@ export default {
                     if (confirm("是否早到打卡?")) {
                         //拍照並且詢問是否要打卡，若無則不執行saveRemote
                         const time = d.Format("yyyy-MM-dd hh:mm:ss");
-                        Webcam.snap(function (dataUri) {
-                            document.getElementById("img").value = dataUri;
-                        });
+                        if(this.cameraSwitch === true) {
+                            Webcam.snap(function (dataUri) {
+                                document.getElementById("img").value = dataUri;
+                            });
+                        } else {
+                            document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAA0NDQ0ODQ4QEA4UFhMWFB4bGRkbHi0gIiAiIC1EKjIqKjIqRDxJOzc7STxsVUtLVWx9aWNpfZeHh5e+tb75+f8BDQ0NDQ4NDhAQDhQWExYUHhsZGRseLSAiICIgLUQqMioqMipEPEk7NztJPGxVS0tVbH1pY2l9l4eHl761vvn5///CABEIABgAFwMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAAB//aAAgBAQAAAACkAH//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAA//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDEAAAAA//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAECAQE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAEDAQE/AB//2Q=='
+                        }
 
                         //判斷加班時數
                         //獲取該員工排班
@@ -860,9 +887,13 @@ export default {
 
                     //拍照並且詢問是否要打卡，若無則不執行saveRemote
                     const time = d.Format("yyyy-MM-dd hh:mm:ss");
-                    Webcam.snap(function (dataUri) {
-                        document.getElementById("img").value = dataUri;
-                    });
+                    if(this.cameraSwitch === true) {
+                        Webcam.snap(function (dataUri) {
+                            document.getElementById("img").value = dataUri;
+                        });
+                    } else {
+                        document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAA0NDQ0ODQ4QEA4UFhMWFB4bGRkbHi0gIiAiIC1EKjIqKjIqRDxJOzc7STxsVUtLVWx9aWNpfZeHh5e+tb75+f8BDQ0NDQ4NDhAQDhQWExYUHhsZGRseLSAiICIgLUQqMioqMipEPEk7NztJPGxVS0tVbH1pY2l9l4eHl761vvn5///CABEIABgAFwMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAAB//aAAgBAQAAAACkAH//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAA//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDEAAAAA//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAECAQE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAEDAQE/AB//2Q=='
+                    }
 
                     
                     let overTime = 0;
@@ -939,7 +970,7 @@ export default {
                     },
                 };
                 this.loading = true;
-                document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4QBmRXhpZgAASUkqAAgAAAADABIBAwABAAAAAQAAADEBAgANAAAAMgAAAGmHBAABAAAAQAAAAAAAAADnm7jniYcgMi43LjAAAAIAAqAJAAEAAAA0AQAAA6AJAAEAAACfAAAAAAAAAP/hCfRodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDQuNC4wLUV4aXYyIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIiBleGlmOlBpeGVsWERpbWVuc2lvbj0iMzA4IiBleGlmOlBpeGVsWURpbWVuc2lvbj0iMTU5IiB0aWZmOkltYWdlV2lkdGg9IjMwOCIgdGlmZjpJbWFnZUhlaWdodD0iMTU5IiB0aWZmOk9yaWVudGF0aW9uPSIxIi8+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPD94cGFja2V0IGVuZD0idyI/Pv/bAEMAAwICAwICAwMDAwQDAwQFCAUFBAQFCgcHBggMCgwMCwoLCw0OEhANDhEOCwsQFhARExQVFRUMDxcYFhQYEhQVFP/bAEMBAwQEBQQFCQUFCRQNCw0UFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFP/+ADxDUkVBVE9SOiBnZC1qcGVnIHYxLjAgKHVzaW5nIElKRyBKUEVHIHY2MiksIHF1YWxpdHkgPSA4MgoA/8AAEQgAnwE0AwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A/VOiikzg0ALRSdRS0AFFFFABRRRQAUUUmcGgBCM0o4FHUUUAFLRRQAUUUUAFNIzTqKAGg4HvS9RSEZpQMCgAzg0dRSEZpQMCgBaKKTODQAtFJ1FLQAUUUUAFFJnBo6igBaTODS00jNAC9RS0gGBS0ANIzRtp1FADdtKOBS0lAC0UUUAFNIzS5waOooAAMClpKWgBM4NGRSEZo20AL1FLSAYFLQAU09adSEUAA6UtIOBS0AFFFFACZwaMikIzRtoAXqKWkAwKWgApKWigApKWigAppGadRQAgGBS0lLQAUUUUANIzSgYFLSUALRRSZwaAClpOopaACiiigAooooAKKKKAGkZpQMClpKAFooooAKKKKAEpaKKACiiigBKWiigAooooAKKKKAEpaKKACiiigAooooAKTODS00jNAC5FHUUm2lAwKAFooooAKKKKACmnrTqQigAHSlpBwKWgAooooAKKKKACiiigAooooAKKKKACiikzg0ALRSdRS0AFFFFABRSZwaOooAWiiigAooooAKKKKACiiigAooooAKKKKACkpaKACiiigAooooAKKKKAEpaKKACiiigAooooAKKKKACkzg0tNIzQAuRR1FJtpQMCgBaaRmnUUAIBgUtJS0AFFFFADSM0oGBS0lABnBo6ikIzSgYFAC0mcGlppGaAF6ilpAMCloATODR1FIRmlAwKAFooooAKKKKACiiigAooooATODR1FIRmlAwKAFoopM4NAC0UnUUtABRRRQAUmcGjODSEZNACjkUUAYooAWkzg0tNIzQAvUUUAYFLQAUUUUAFFFFABRRRQAUUUUAFJS0UAFFFFACUtFFABSUtFABRRRQAUmcGlppGaAF6ilpAMCloAKKKKACkpaKACmkZp1FACAYFLSUtABRRRQA0jNKOBRnBo6igBaKKKACiiigBKWiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooASloooAKKKKACiiigAooooAKKKKACiiigBpGaUDApaSgBaKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooATODR1FIRmlAwKAFpM4NLTSM0AL1FLSAYFLQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUmeaAFooooAKKKKACiiigAooooAKKKKACkzg0tNIzQAvUUtIBgUtABSUtFABRRRQAlLRRQAUUUUAFFFFABRRRQAUUmcGjqKAFopM4NHUUALRRRQAUUUUAFFFFABRTSeaKAHUmPmpaKACikzg0dRQAtFFFABRRRQAUUUUAFFFFACE4paKKAEoJxS0UAFFFFABRRRQAUUUmcGgBaKTqKWgAooooAKKKKAGkZpQMClpKAEIzSgYFLSUALRRRQAUUUUAFFFFACYopaKAP/Z'
+                document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAA0NDQ0ODQ4QEA4UFhMWFB4bGRkbHi0gIiAiIC1EKjIqKjIqRDxJOzc7STxsVUtLVWx9aWNpfZeHh5e+tb75+f8BDQ0NDQ4NDhAQDhQWExYUHhsZGRseLSAiICIgLUQqMioqMipEPEk7NztJPGxVS0tVbH1pY2l9l4eHl761vvn5///CABEIABgAFwMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAAB//aAAgBAQAAAACkAH//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAA//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDEAAAAA//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAECAQE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAEDAQE/AB//2Q=='
                 //插入遠端server
                 axios
                     .post(
@@ -979,9 +1010,13 @@ export default {
             } else {    
                 //拍照並且詢問是否要打卡，若無則不執行saveRemote
                 const time = d.Format("yyyy-MM-dd hh:mm:ss");
-                Webcam.snap(function (dataUri) {
-                    document.getElementById("img").value = dataUri;
-                });
+                if(this.cameraSwitch === true) {
+                    Webcam.snap(function (dataUri) {
+                        document.getElementById("img").value = dataUri;
+                    });
+                } else {
+                    document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAA0NDQ0ODQ4QEA4UFhMWFB4bGRkbHi0gIiAiIC1EKjIqKjIqRDxJOzc7STxsVUtLVWx9aWNpfZeHh5e+tb75+f8BDQ0NDQ4NDhAQDhQWExYUHhsZGRseLSAiICIgLUQqMioqMipEPEk7NztJPGxVS0tVbH1pY2l9l4eHl761vvn5///CABEIABgAFwMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAAB//aAAgBAQAAAACkAH//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAA//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDEAAAAA//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAECAQE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAEDAQE/AB//2Q=='
+                }
                 // if (confirm("是否打卡?")) {
                 //上傳至local server
                 this.postData.employee_id = employee_id;
@@ -1477,6 +1512,9 @@ export default {
                 this.Toast('再按一次來退出程式!');
                 this.back.time = tmpTime;
             }
+        },
+        cameraSwitchChange() {
+            window.localStorage.setItem('cameraSwitch', this.cameraSwitch);
         }
     },
     computed: {
@@ -1505,8 +1543,10 @@ export default {
         showModal: {
             //控制modal
             handler: function () {
-                if (this.showModal === false) {
-                    Webcam.reset();
+                if(this.cameraSwitch === true) {
+                    if (this.showModal === false) {
+                        Webcam.reset();
+                    }
                 }
             },
         },
@@ -2008,7 +2048,18 @@ figure > img {
     -webkit-box-shadow: inset 0 0 6px rgba(255,255,255);  
    background-color:#b5b1b1;
 } 
+
+.camera {
+    overflow: hidden; width: 300px;  transform: scaleX(-1);
+}
+.camera.On {
+    height: 250px;
+}
+
 @media only screen and (max-width: 600px) {
+    .camera.OnMobile {
+        height: 160px;
+    }
     figure.media > div > div > iframe {
         width: 100% !important;
     }
