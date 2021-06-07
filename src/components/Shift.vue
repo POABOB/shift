@@ -1955,7 +1955,7 @@ body {
   background-color: #192A38;
 }
 #my_camera {
-    margin: -25px 0 0 0;
+    margin: -20px 0 0 0;
 }
 
 .red.button{
@@ -2053,12 +2053,15 @@ figure > img {
     overflow: hidden; width: 300px;  transform: scaleX(-1);
 }
 .camera.On {
-    height: 250px;
+    height: 240px;
+    background-color: #eee;
 }
+
 
 @media only screen and (max-width: 600px) {
     .camera.OnMobile {
         height: 160px;
+    background-color: #eee;
     }
     figure.media > div > div > iframe {
         width: 100% !important;
