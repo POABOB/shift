@@ -326,7 +326,7 @@ export default {
                 dest_width: 100,
                 dest_height: 83.34,
                 image_format: "jpeg",
-                jpeg_quality: 50,
+                jpeg_quality: 80,
                 flip_horiz: true,
                 mandatory: {
                     facingMode: {
@@ -337,10 +337,10 @@ export default {
             webcamMobile: {
                 width: 300,
                 height: 160,
-                dest_width: 100,
-                dest_height: 53.33,
+                dest_width: 150,
+                dest_height: 80,
                 image_format: "jpeg",
-                jpeg_quality: 50,
+                jpeg_quality: 80,
                 flip_horiz: true,
                 mandatory: {
                     facingMode: {
@@ -2061,6 +2061,11 @@ figure > img {
 
 
 @media only screen and (max-width: 600px) {
+    .custom-switch {
+        margin-left: 2rem;
+        margin-right: 2rem;
+        padding-left: 0 !important;
+    }
     .camera.OnMobile {
         height: 160px;
     background-color: #eee;
