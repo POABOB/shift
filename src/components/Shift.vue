@@ -375,7 +375,7 @@ export default {
         };
     },
     created() {
-        if(!navigator.userAgent.match('Chrome')) {
+        if(!(navigator.userAgent.match('Chrome') || navigator.userAgent.match('CriOS'))) {
             alert('不支援該瀏覽器！');
         }
         //時區校正
@@ -709,6 +709,7 @@ export default {
                 alert("資料重整中，請重新打卡...")
                 location.reload();
             } else {
+                document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAA0NDQ0ODQ4QEA4UFhMWFB4bGRkbHi0gIiAiIC1EKjIqKjIqRDxJOzc7STxsVUtLVWx9aWNpfZeHh5e+tb75+f8BDQ0NDQ4NDhAQDhQWExYUHhsZGRseLSAiICIgLUQqMioqMipEPEk7NztJPGxVS0tVbH1pY2l9l4eHl761vvn5///CABEIABgAFwMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAAB//aAAgBAQAAAACkAH//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAA//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDEAAAAA//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAECAQE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAEDAQE/AB//2Q=='
                 //加班詢問
                 if (type === "off") {
                     //詢問是否打卡
@@ -1008,6 +1009,7 @@ export default {
                 alert("資料重整中，請重新打卡...")
                 location.reload();
             } else {    
+                document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAA0NDQ0ODQ4QEA4UFhMWFB4bGRkbHi0gIiAiIC1EKjIqKjIqRDxJOzc7STxsVUtLVWx9aWNpfZeHh5e+tb75+f8BDQ0NDQ4NDhAQDhQWExYUHhsZGRseLSAiICIgLUQqMioqMipEPEk7NztJPGxVS0tVbH1pY2l9l4eHl761vvn5///CABEIABgAFwMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAAB//aAAgBAQAAAACkAH//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAA//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDEAAAAA//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAECAQE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAEDAQE/AB//2Q=='
                 //拍照並且詢問是否要打卡，若無則不執行saveRemote
                 const time = d.Format("yyyy-MM-dd hh:mm:ss");
                 if(this.cameraSwitch === true) {
