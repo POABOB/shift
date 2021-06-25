@@ -1,5 +1,9 @@
 import Vue from 'vue'
 import App from './App.vue'
+
+
+import router from './router'
+import './permission' // permission control
 //訊息欄
 import Toastr from "vue-toastr";
 const toastrConfig = {
@@ -16,5 +20,6 @@ Vue.use(Toastr, toastrConfig);
 Vue.config.productionTip = false
 
 new Vue({
+    router,
     render: h => h(App),
 }).$mount('#app')

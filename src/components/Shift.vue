@@ -278,9 +278,9 @@ export default {
     // },
     data() {
         return {
-            clinicId:33,
+            clinicId:0,
             clinicName: "",
-            version: "v1.9",
+            version: "v2.0",
             date: "0000-00-00",
             mode: {
                 prd: "34.80.179.232",
@@ -371,10 +371,16 @@ export default {
                 time: 0,
                 click: 0
             },
-            cameraSwitch: true
+            cameraSwitch: true,
+            time: ''
         };
     },
     created() {
+        const token = window.localStorage.getItem('token');
+        if (token === null) {
+            this.redirectLogin();
+        }
+
         if(!(navigator.userAgent.match('Chrome') || navigator.userAgent.match('CriOS'))) {
             alert('不支援該瀏覽器！');
         }
@@ -392,10 +398,6 @@ export default {
 
        //一次性資料
         this.getClinicData();
-
-        //利用token獲取診所人員紀錄
-        this.getShiftRecord();
-
     },
     mounted() {
         //時間
@@ -411,6 +413,10 @@ export default {
             this.windowWidth = document.body.clientWidth
         })
         document.addEventListener('backbutton', this.onBackKeyDown, false);
+    },
+    beforeRouteLeave(to, from, next) {
+        clearInterval(this.time);
+        next();
     },
     beforeDestroy(){
         document.removeEventListener('backbutton', this.backbutton,false)
@@ -483,78 +489,91 @@ export default {
                     location.reload();
                 }
             };
-            setInterval(update, 1000);
+            this.time = setInterval(update, 1000);
         },
         getClinicData() {
+            let config = {
+                headers: {
+                    "Authorization": 'Bearer ' + window.localStorage.getItem('token')
+                },
+            };
             axios
-                .get(
-                    `http://${this.mode.prd}/api_v1.1/shift/clinic?id=${btoa(
-            this.clinicId + "." + this.date
-          )}`
-                )
+                .get(`http://${this.mode.prd}/api_v1.1/shift/clinic?date=${this.date}`,
+                    config)
                 .then((res) => {
-                    let data = res.data.data;
-                    //診所名稱
-                    this.clinicName = data[0].name;
+                    if(res.data.code === 200) {
+                        //利用token獲取診所人員紀錄
+                        this.getShiftRecord();
 
-                    //考勤設定
-                    this.attendance = data[1];
-                    //排班表
-                    if (data[2] !== null) {
-                        data[2].forEach((item) => {
-                            // 刪除多餘的排班，只求當天
-                            let index = item.data.length - 1;
-                            while (index >= 0) {
-                                if (item.data[index].date !== this.date) {
-                                    item.data.splice(index, 1);
-                                }
-                                index -= 1;
-                            }
-                        });
-                        this.shift = data[2];
-                    } else {
-                        this.shift = [];
-                    }
+                        let data = res.data.data;
+                        //診所名稱
+                        this.clinicName = data[0].clinic_name;
+                        this.clinicId = data[0].clinic_id;
 
-                    //員工列表
-                    if (data[3] !== null) {
-                        let _in = [];
-                        let _not_in = [];
-                        if (this.shift !== null) {
-                            data[3].forEach((item) => {
-                                const d = this.shift.find(
-                                    (d) => d.employee_id == item.employee_id
-                                );
-                                // 休假也算無排班
-                                if (d !== undefined && d.data[0].shift.shift_id !== 0) {
-                                    _in.push({
-                                        employee_id: item.employee_id,
-                                        name: item.name,
-                                    });
-                                } else {
-                                    _not_in.push({
-                                        employee_id: item.employee_id,
-                                        name: item.name,
-                                    });
+                        //考勤設定
+                        this.attendance = data[1];
+                        //排班表
+                        if (data[2] !== null) {
+                            data[2].forEach((item) => {
+                                // 刪除多餘的排班，只求當天
+                                let index = item.data.length - 1;
+                                while (index >= 0) {
+                                    if (item.data[index].date !== this.date) {
+                                        item.data.splice(index, 1);
+                                    }
+                                    index -= 1;
                                 }
                             });
+                            this.shift = data[2];
                         } else {
-                            _not_in = JSON.parse(JSON.stringify(this.employee));
+                            this.shift = [];
                         }
-                        this.employee = data[3];
-                        this.employee_in_shift = _in;
-                        this.employee_not_in_shift = _not_in;
-                    } else {
-                        this.employee = [];
-                        alert("尚未新增員工!");
-                    }
-                    
-                    if (data[4] !== null) {
-                        this.announce.valid = true;
-                        this.announce.title = data[4].title;
-                        this.announce.start_at = data[4].start_at;
-                        this.announce.end_at = data[4].end_at;
-                        this.announce.content = data[4].content;
+
+                        //員工列表
+                        if (data[3] !== null) {
+                            let _in = [];
+                            let _not_in = [];
+                            if (this.shift !== null) {
+                                data[3].forEach((item) => {
+                                    const d = this.shift.find(
+                                        (d) => d.employee_id == item.employee_id
+                                    );
+                                    // 休假也算無排班
+                                    if (d !== undefined && d.data[0].shift.shift_id !== 0) {
+                                        _in.push({
+                                            employee_id: item.employee_id,
+                                            name: item.name,
+                                        });
+                                    } else {
+                                        _not_in.push({
+                                            employee_id: item.employee_id,
+                                            name: item.name,
+                                        });
+                                    }
+                                });
+                            } else {
+                                _not_in = JSON.parse(JSON.stringify(this.employee));
+                            }
+                            this.employee = data[3];
+                            this.employee_in_shift = _in;
+                            this.employee_not_in_shift = _not_in;
+                        } else {
+                            this.employee = [];
+                            alert("尚未新增員工!");
+                        }
+                        
+                        if (data[4] !== null) {
+                            this.announce.valid = true;
+                            this.announce.title = data[4].title;
+                            this.announce.start_at = data[4].start_at;
+                            this.announce.end_at = data[4].end_at;
+                            this.announce.content = data[4].content;
+                        }
+                    } else if(res.data.code === 400) {
+                        alert(res.data.message)
+                        this.redirectLogin();
+                    } else if(res.data.code === 401) {
+                        alert(res.data.message)
                     }
                 })
                 .catch((error) => {
@@ -562,17 +581,26 @@ export default {
                 });
         },
         getShiftRecord() {
+            let config = {
+                    headers: {
+                        "Authorization": 'Bearer ' + window.localStorage.getItem('token')
+                    },
+                };
             //獲取該診所所有員工當日打卡紀錄
             axios
-                .get(
-                    `http://${this.mode.prd}/api_v1.1/shift/record/new?id=${btoa(
-            this.clinicId + "." + this.date
-          )}`
-                )
+                .get(`http://${this.mode.prd}/api_v1.1/shift/record/new?date=${this.date}`,
+                    config)
                 .then((res) => {
-                    const data = res.data.data;
-                    this.record = data[0] ?? [];
-                    this.checkRecord = data[1] ?? [];
+                    if(res.data.code === 200) {
+                        const data = res.data.data;
+                        this.record = data[0] ?? [];
+                        this.checkRecord = data[1] ?? [];
+                    } else if(res.data.code === 400) {
+                        alert(res.data.message)
+                        this.redirectLogin();
+                    } else if(res.data.code === 401) {
+                        alert(res.data.message)
+                    }
                 })
                 .catch((error) => {
                     alert(error);
@@ -666,18 +694,16 @@ export default {
                 );
                 form.append("data", JSON.stringify(this.postData));
                 let config = {
-                    header: {
+                    headers: {
                         "Content-Type": "multipart/form-data",
-                    },
+                        "Authorization": 'Bearer ' + window.localStorage.getItem('token')
+                    }
                 };
                 this.loading = true;
                 document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAA0NDQ0ODQ4QEA4UFhMWFB4bGRkbHi0gIiAiIC1EKjIqKjIqRDxJOzc7STxsVUtLVWx9aWNpfZeHh5e+tb75+f8BDQ0NDQ4NDhAQDhQWExYUHhsZGRseLSAiICIgLUQqMioqMipEPEk7NztJPGxVS0tVbH1pY2l9l4eHl761vvn5///CABEIABgAFwMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAAB//aAAgBAQAAAACkAH//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAA//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDEAAAAA//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAECAQE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAEDAQE/AB//2Q=='
                 //插入遠端server
                 axios
-                    .post(
-                        `http://${this.mode.prd}/api_v1.1/shift/record/add?id=${btoa(
-                this.clinicId + "." + this.date
-            )}`,
+                    .post(`http://${this.mode.prd}/api_v1.1/shift/record/add?token=${this.token}&date=${this.date}`,
                         form,
                         config
                     )
@@ -691,8 +717,11 @@ export default {
                             this.getShiftRecord();
                             this.modalToggle();
                             this.$nextTick();
-                        } else {
-                            alert(res.data.message);
+                        } else if(res.data.code === 400) {
+                            alert(res.data.message)
+                            this.redirectLogin();
+                        } else if(res.data.code === 401) {
+                            alert(res.data.message)
                         }
                         this.loading = false;
                     })
@@ -966,18 +995,16 @@ export default {
                 );
                 form.append("data", JSON.stringify(this.postData));
                 let config = {
-                    header: {
+                    headers: {
                         "Content-Type": "multipart/form-data",
-                    },
+                        "Authorization": 'Bearer ' + window.localStorage.getItem('token')
+                    }
                 };
                 this.loading = true;
                 document.getElementById("img").value ='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAA0NDQ0ODQ4QEA4UFhMWFB4bGRkbHi0gIiAiIC1EKjIqKjIqRDxJOzc7STxsVUtLVWx9aWNpfZeHh5e+tb75+f8BDQ0NDQ4NDhAQDhQWExYUHhsZGRseLSAiICIgLUQqMioqMipEPEk7NztJPGxVS0tVbH1pY2l9l4eHl761vvn5///CABEIABgAFwMBIgACEQEDEQH/xAAVAAEBAAAAAAAAAAAAAAAAAAAAB//aAAgBAQAAAACkAH//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAECEAAAAA//xAAUAQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDEAAAAA//xAAUEAEAAAAAAAAAAAAAAAAAAAAw/9oACAEBAAE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAECAQE/AB//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAEDAQE/AB//2Q=='
                 //插入遠端server
                 axios
-                    .post(
-                        `http://${this.mode.prd}/api_v1.1/shift/record/check/add?id=${btoa(
-                this.clinicId + "." + this.date
-            )}`,
+                    .post(`http://${this.mode.prd}/api_v1.1/shift/record/check/add?token=${this.token}&date=${this.date}`,
                         form,
                         config
                     )
@@ -991,8 +1018,11 @@ export default {
                             this.getShiftRecord();
                             this.modalToggle();
                             this.$nextTick();
-                        } else {
-                            alert(res.data.message);
+                        } else if(res.data.code === 400) {
+                            alert(res.data.message)
+                            this.redirectLogin();
+                        } else if(res.data.code === 401) {
+                            alert(res.data.message)
                         }
                         this.loading = false;
                     })
@@ -1517,6 +1547,10 @@ export default {
         },
         cameraSwitchChange() {
             window.localStorage.setItem('cameraSwitch', this.cameraSwitch);
+        },
+        redirectLogin() {
+            window.localStorage.setItem('token', '');
+            location.reload();
         }
     },
     computed: {
