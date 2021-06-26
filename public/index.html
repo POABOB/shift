@@ -18,6 +18,12 @@
     <!-- built files will be auto injected -->
     <script type="text/javascript" charset="utf-8" src="cordova.js"></script>  
     <script src="<%= BASE_URL %>date.js"></script>
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            alert(JSON.stringify({message, source, lineno, colno, error}))
+            console.log(1)
+        };
+    </script>
 </body>
 
 </html>

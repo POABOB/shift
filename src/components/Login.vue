@@ -25,11 +25,6 @@ import axios from "axios";
 export default {
     title: "打卡排班系統",
     name: "Login",
-    created() {
-        // window.onerror = function(message, source, lineno, colno, error) {
-        //     alert(JSON.stringify({message, source, lineno, colno, error}))
-        // };
-    },
     data() {
         return {
             form: {

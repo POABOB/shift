@@ -20,7 +20,7 @@ export const constantRoutes = [
 ]
 
 const createRouter = () => new Router({
-	mode: 'history',
+	// mode: 'history',
     routes: constantRoutes
 })
 
