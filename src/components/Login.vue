@@ -10,7 +10,7 @@
                         <input v-model="form.clinic_code" type="text" placeholder="account" maxlength="5"/>
                         <input v-model="form.password" type="password" placeholder="password" maxlength="10"/>
                         <button>登入</button>
-                        <!-- <p class="message"><a target="__blank" :href="'http://' + mode.dev + '/Leyan/clinic1/shift_login.html'">帳密資訊請點此處</a></p> -->
+                        <!-- <p class="message"><a target="__blank" :href="'http://' + mode.prd + '/Leyan/clinic1/shift_login.html'">帳密資訊請點此處</a></p> -->
                     </form>
                 </div>
                 </div>
@@ -25,6 +25,11 @@ import axios from "axios";
 export default {
     title: "打卡排班系統",
     name: "Login",
+    created() {
+        // window.onerror = function(message, source, lineno, colno, error) {
+        //     alert(JSON.stringify({message, source, lineno, colno, error}))
+        // };
+    },
     data() {
         return {
             form: {
@@ -39,13 +44,13 @@ export default {
     },
     methods: {
         postLogin() {
-            axios.post(`http://${this.mode.dev}/api_v1.1/login/shift`, this.form)
+            axios.post(`http://${this.mode.prd}/api_v1.1/login/shift`, this.form)
             .then((res) => {
                 if (res.data.code === 200) {
                     let data = res.data.data;
                     window.localStorage.setItem('token', data.token);
                     alert(`登入成功`);
-                    this.$router.push('/');
+                    this.$router.push({ path: '/' });
                 } else if(res.data.code === 400) {
                     alert(res.data.message)
                 } else if(res.data.code === 401) {

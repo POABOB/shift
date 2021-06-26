@@ -376,6 +376,9 @@ export default {
         };
     },
     created() {
+        // window.onerror = function(message, source, lineno, colno, error) {
+        //     alert(JSON.stringify({message, source, lineno, colno, error}))
+        // };
         const token = window.localStorage.getItem('token');
         if (token === null) {
             this.redirectLogin();
