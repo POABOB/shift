@@ -280,7 +280,7 @@ export default {
         return {
             clinicId:0,
             clinicName: "",
-            version: "v2.0",
+            version: "v2.1",
             date: "0000-00-00",
             mode: {
                 prd: "34.80.179.232",
@@ -432,6 +432,9 @@ export default {
             this.getEmployeeRecord(id);
             this.checkOverTimeBtn(id);
             this.checkEarlyBtn(id);
+
+            const d = this.changeTimezone(new Date(), 'Asia/Taipei');
+            this.date = d.Format("yyyy-MM-dd");
             this.$nextTick();
             this.modalToggle()
         },
@@ -1880,6 +1883,11 @@ body {
   color: #2A8998;
   font-weight: bold;
 }
+
+h5, .h5 {
+    font-size: 1.1rem !important;
+}
+
 .off{
   background-color: #ffffff;
   border-radius: 45px;
@@ -2008,7 +2016,7 @@ body {
     display: none;
 }
 .windows.none {
-    height: 630px;
+    height: 640px;
 }
 .version {
     position: absolute;
@@ -2274,6 +2282,7 @@ figure > img {
     .windows.mobile .off h5 {
         line-height: 40px;
     }
+    
 
     .hamburger {
         width: 50px;
