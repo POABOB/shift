@@ -280,7 +280,7 @@ export default {
         return {
             clinicId:0,
             clinicName: "",
-            version: "v2.1",
+            version: "v2.1.1",
             date: "0000-00-00",
             mode: {
                 prd: "34.80.179.232",
@@ -401,6 +401,7 @@ export default {
     },
     mounted() {
         //時間
+        //如果不行 從這邊下手
         this.timer();
         const ptr = PullToRefresh.init({
             mainElement: '#app',
@@ -428,13 +429,15 @@ export default {
                 Webcam.set(this.webcam);
                 Webcam.attach("#my_camera");
             }
+
+            const d = this.changeTimezone(new Date(), 'Asia/Taipei');
+            this.date = d.Format("yyyy-MM-dd");
+
             this.getEmployeeData(id);
             this.getEmployeeRecord(id);
             this.checkOverTimeBtn(id);
             this.checkEarlyBtn(id);
 
-            const d = this.changeTimezone(new Date(), 'Asia/Taipei');
-            this.date = d.Format("yyyy-MM-dd");
             this.$nextTick();
             this.modalToggle()
         },
@@ -453,6 +456,10 @@ export default {
                     Webcam.set(this.webcamMobile);
                     Webcam.attach("#my_camera");
                 }
+
+                const d = this.changeTimezone(new Date(), 'Asia/Taipei');
+                this.date = d.Format("yyyy-MM-dd");
+
                 this.getEmployeeData(id);
                 this.getEmployeeRecord(id);
                 this.checkOverTimeBtn(id);
@@ -489,6 +496,7 @@ export default {
                 document.getElementById("datetime").innerHTML = time;
                 document.getElementById("datetime2").innerHTML = time.substr(-8);
                 if(time.substr(11, 18) == "00:00:01") {
+                    clearInterval(this.time);
                     location.reload();
                 }
             };
@@ -505,6 +513,9 @@ export default {
                     config)
                 .then((res) => {
                     if(res.data.code === 200) {
+                        if (data[5] !== null) {
+                            this.date = data[5]
+                        }
                         //利用token獲取診所人員紀錄
                         this.getShiftRecord();
 
