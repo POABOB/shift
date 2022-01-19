@@ -513,13 +513,13 @@ export default {
                     config)
                 .then((res) => {
                     if(res.data.code === 200) {
+                        let data = res.data.data;
                         if (data[5] !== null) {
                             this.date = data[5]
                         }
                         //利用token獲取診所人員紀錄
                         this.getShiftRecord();
 
-                        let data = res.data.data;
                         //診所名稱
                         this.clinicName = data[0].clinic_name;
                         this.clinicId = data[0].clinic_id;
