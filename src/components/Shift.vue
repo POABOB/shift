@@ -280,7 +280,7 @@ export default {
         return {
             clinicId:0,
             clinicName: "",
-            version: "v2.1.1",
+            version: "v2.2",
             date: "0000-00-00",
             mode: {
                 prd: "34.80.179.232",
@@ -395,11 +395,11 @@ export default {
         } else {
             window.localStorage.setItem('cameraSwitch', this.cameraSwitch);
         }
-
-       //一次性資料
-        this.getClinicData();
     },
     mounted() {
+        //一次性資料
+        this.getClinicData();
+
         //時間
         //如果不行 從這邊下手
         this.timer();
@@ -783,7 +783,7 @@ export default {
                                 this.employeeRecord[item + "_o2"] == ""
                             ) {
                                 //現在時間減去下班時間
-                                let overTime = Math.floor(
+                                let overTime = Math.trunc(
                                     new Date(
                                         new Date() -
                                         new Date(
@@ -850,7 +850,7 @@ export default {
                                 this.employeeRecord[item + "_o2"] == ""
                             ) {
                                 //現在時間減去下班時間
-                                let overTime = Math.floor(
+                                let overTime = Math.trunc(
                                     new Date(
                                         new Date() -
                                         new Date(
