@@ -236,7 +236,7 @@
                     <button class="red button" :class="{ none: isOffNone }" @click="takeSnapshot(employeeData.employee_id, 'off')">
                         加班下班
                     </button>
-                    <input type="button" value="✕  關閉" class="button" @click="modalToggle()" />
+                    <input type="button" value="✕  關閉" class="button full" @click="modalToggle()" />
                 </div>
                 <div class="tab-pane fade" :class="{ active: nav[1] , show: nav[1]}">
                     <div class="work check">
@@ -252,7 +252,7 @@
                             </div>
                         </div>
                     </div>
-                    <input type="button" value="✕  關閉" class="button" @click="modalToggle()" />
+                    <input type="button" value="✕  關閉" class="button full" @click="modalToggle()" />
                 </div>
             </div>
         </div>
@@ -395,11 +395,10 @@ export default {
         } else {
             window.localStorage.setItem('cameraSwitch', this.cameraSwitch);
         }
-    },
-    mounted() {
         //一次性資料
         this.getClinicData();
-
+    },
+    mounted() {
         //時間
         //如果不行 從這邊下手
         this.timer();
@@ -410,19 +409,39 @@ export default {
                 window.location.reload();
             }
         });
+
+        // 綁定重整或關閉
+        window.addEventListener('beforeunload', this.updateHandler)
         window.addEventListener('resize', () => {
             this.windowWidth = document.body.clientWidth
         })
         document.addEventListener('backbutton', this.onBackKeyDown, false);
     },
-    beforeRouteLeave(to, from, next) {
-        clearInterval(this.time);
-        next();
-    },
+    // beforeRouteLeave(to, from, next) {
+    //     clearInterval(this.time);
+    //     console.log(111111);
+    //     next();
+    // },
     beforeDestroy(){
+        PullToRefresh.destroyAll()
+        clearInterval(this.time);
         document.removeEventListener('backbutton', this.backbutton,false)
+        window.removeEventListener('resize', () => {
+            this.windowWidth = document.body.clientWidth
+        })
+        // 解除綁定
+        window.removeEventListener('beforeunload', this.updateHandler)
     },
     methods: {
+        updateHandler() {
+            PullToRefresh.destroyAll()
+            clearInterval(this.time);
+            document.removeEventListener('backbutton', this.backbutton,false)
+            window.removeEventListener('resize', () => {
+                this.windowWidth = document.body.clientWidth
+            })
+            window.removeEventListener('beforeunload', this.updateHandler)
+        },
         Cam(id) {
             //建立webcam配置
             if(this.cameraSwitch === true) {
@@ -1917,7 +1936,7 @@ h5, .h5 {
   color: #BB7B99;
   font-weight: bold;
 }
-.button{
+.button {
   background-color: #BFBFBF;
   border: 0px;
   border-radius: 45px;
@@ -1930,6 +1949,9 @@ h5, .h5 {
   text-align: center;
 }
 
+.button.full {
+  margin-top: 15px;
+}
 
 /* 深色主題 */
 
@@ -2237,14 +2259,14 @@ figure > img {
         height: calc(100vh - 270px);
     }
     .windows.mobile.none .work {
-        padding: 0 20px 160px 20px;
+        padding: 0 20px 170px 20px;
     }
     .windows.mobile .work {
         display: block;
         overflow-y: scroll;
         height: 100%;
         margin-top: 10px;
-        padding: 0 20px 210px 20px;
+        padding: 0 20px 240px 20px;
     }
     .windows.mobile .btns-fixed {
         position: absolute;
