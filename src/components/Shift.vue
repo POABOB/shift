@@ -282,6 +282,7 @@ export default {
             clinicName: "",
             version: "v2.2",
             date: "0000-00-00",
+            clinicDataDate: "0000-00-00",
             mode: {
                 prd: "34.80.179.232",
                 dev: "localhost",
@@ -375,7 +376,7 @@ export default {
             time: ''
         };
     },
-    created() {
+    async created() {
         const token = window.localStorage.getItem('token');
         if (token === null) {
             this.redirectLogin();
@@ -396,7 +397,7 @@ export default {
             window.localStorage.setItem('cameraSwitch', this.cameraSwitch);
         }
         //一次性資料
-        this.getClinicData();
+        await this.getClinicData();
     },
     mounted() {
         //時間
@@ -442,7 +443,7 @@ export default {
             })
             window.removeEventListener('beforeunload', this.updateHandler)
         },
-        Cam(id) {
+        async Cam(id) {
             //建立webcam配置
             if(this.cameraSwitch === true) {
                 Webcam.set(this.webcam);
@@ -452,15 +453,19 @@ export default {
             const d = this.changeTimezone(new Date(), 'Asia/Taipei');
             this.date = d.Format("yyyy-MM-dd");
 
-            this.getEmployeeData(id);
-            this.getEmployeeRecord(id);
+            if(this.clinicDataDate !== this.date) {
+                await this.getClinicData();
+            }
+
+            await this.getEmployeeData(id);
+            await this.getEmployeeRecord(id);
             this.checkOverTimeBtn(id);
             this.checkEarlyBtn(id);
 
             this.$nextTick();
             this.modalToggle()
         },
-        CamMobile() {
+        async CamMobile() {
             //建立webcam配置
             let id = 0;
             id = this.selects.in.employee_id;
@@ -479,8 +484,12 @@ export default {
                 const d = this.changeTimezone(new Date(), 'Asia/Taipei');
                 this.date = d.Format("yyyy-MM-dd");
 
-                this.getEmployeeData(id);
-                this.getEmployeeRecord(id);
+                if(this.clinicDataDate !== this.date) {
+                    await this.getClinicData();
+                }
+
+                await this.getEmployeeData(id);
+                await this.getEmployeeRecord(id);
                 this.checkOverTimeBtn(id);
                 this.checkEarlyBtn(id);
                 this.$nextTick();
@@ -601,6 +610,10 @@ export default {
                             this.announce.start_at = data[4].start_at;
                             this.announce.end_at = data[4].end_at;
                             this.announce.content = data[4].content;
+                        }
+
+                        if(data[5] !== null) {
+                            this.clinicDataDate = data[5]
                         }
                     } else if(res.data.code === 400) {
                         alert(res.data.message)
