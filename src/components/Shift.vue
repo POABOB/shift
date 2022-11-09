@@ -817,7 +817,7 @@ export default {
                                 //現在時間減去下班時間
                                 let overTime = Math.trunc(
                                     new Date(
-                                        new Date() -
+                                        new Date(time) -
                                         new Date(
                                             this.date + " " +
                                             shift.data[0].shift[item]
@@ -884,7 +884,7 @@ export default {
                                 //現在時間減去下班時間
                                 let overTime = Math.trunc(
                                     new Date(
-                                        new Date() -
+                                        new Date(time) -
                                         new Date(
                                             this.date + " " +
                                             shift.data[0].shift[item]
