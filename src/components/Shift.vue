@@ -280,7 +280,7 @@ export default {
         return {
             clinicId:0,
             clinicName: "",
-            version: "v2.2",
+            version: "v2.3",
             date: "0000-00-00",
             clinicDataDate: "0000-00-00",
             mode: {
@@ -890,7 +890,7 @@ export default {
                                             shift.data[0].shift[item]
                                         )
                                     ).getTime() / 60000
-                                );
+                                ) - 1;
                                 if (overTime <  -parseInt(this.attendance.is_before.param1)) {
                                     shift_data.push({
                                         type: item,
@@ -911,6 +911,12 @@ export default {
                                 over_time = item.over;
                             }
                         });
+                        
+                        if(type === "on") {
+                            alert("早到逾時，請重新再打卡...")
+                            location.reload()
+                            return
+                        }
 
                         this.postData.employee_id = employee_id;
                         this.postData.datetime = time;
@@ -1003,7 +1009,7 @@ export default {
                     //         var date2 = new Date(`${this.date} ${shift_time}`); 
                     //         overTime = (date2.getHours() - date.getHours()) * 60 + (date2.getMinutes() - date.getMinutes());
                     //         if(-overTime > parseInt(this.attendance.is_delay.param1)) {
-                    //             type = type+"_l2";
+                    //             type = type+"_e2";
                     //         } else {
                     //             overTime = 0;
                     //         }
